@@ -2,13 +2,13 @@
 Using the base percentage fingerprint of the 10-mer decomposition of genomic and plasmid DNA to classify bacteria strains
 
 
-##INSTALL JELLYFISH
+## INSTALL JELLYFISH
 Our analysis requires the use of jellyfish to count the number of unique
 10-mers in the genome. Following steps document how to install jellyfish from
 source:
 
 Get the source code directly by by preforming a wget on the source code link
-which can be found on their git repo <a href="https://github.com/gmarcais/Jellyfish" here</a>.
+which can be found on their git repo <a href="https://github.com/gmarcais/Jellyfish">  here</a>.
 
 ```bash
 wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.7/jellyfish-2.2.7.tar.gz
@@ -46,7 +46,7 @@ Example:
 jellyfish count -m 21 -s 100M -t 10 -C reads.fasta
 ```
 
-User guide for the jellyfish software can be found <a href=http://www.genome.umd.edu/docs/JellyfishUserGuide.pdf> here</a>.
+User guide for the jellyfish software can be found <a href="http://www.genome.umd.edu/docs/JellyfishUserGuide.pdf"> here</a>.
 Jelly fish software is developed by Guillaume Marçais or Carl Kingsfor. 
 
 
