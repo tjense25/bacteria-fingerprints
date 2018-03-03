@@ -20,8 +20,8 @@ following commands to build jellyfish from source:
 
 ```bash
 cd jellyfish-2.2.7
-mkdir jellyfish
-./configure --prefix=~/fsl_group/fslg_genome/bacteria-fingerprint/jellyfish-2.2.7/jellyfish
+mkdir jf
+./configure --prefix=$HOME/fsl_group/fslg_genome/bacteria-fingerprints/jellyfish-2.2.7/jf
 make
 make install
 ```
@@ -33,21 +33,20 @@ to the .bash_rc or .bash_profile file:
 
 ```bash
 #jellyfish commands
-export
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/fsl_group/fslg_genome/bacteria-fingerprint/jellyfish-2.2.7/jellyfish
-alias jellyfish="~/fsl_group/fslg_genome/bacteria-fingerprint/jellyfish-2.2.7/jellyfish/bin/jellyfish"
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/fsl_group/fslg_genome/bacteria-fingerprints/jellyfish-2.2.7/jf/lib
+alias jellyfish="$HOME/fsl_group/fslg_genome/bacteria-fingerprints/jellyfish-2.2.7/jf/bin/jellyfish"
 ```
 
 Restart your connection with the supercomputer so that these commands can be
 loaded. And now we can run jellyfish at the command simply by typing jellyfish.
-Example:
 
+Example:
 ```bash
 jellyfish count -m 21 -s 100M -t 10 -C reads.fasta
 ```
 
 User guide for the jellyfish software can be found <a href="http://www.genome.umd.edu/docs/JellyfishUserGuide.pdf"> here</a>.
-Jelly fish software is developed by Guillaume Marçais or Carl Kingsfor. 
+Jelly fish software is developed by Guillaume Marçais or Carl Kingsfor.
 
 
 
