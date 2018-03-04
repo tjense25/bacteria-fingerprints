@@ -1,4 +1,4 @@
-BPS	COUNT
+BasePercentageIndex	Count
 0	0
 1	544
 2	2124

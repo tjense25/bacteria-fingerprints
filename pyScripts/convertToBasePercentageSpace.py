@@ -73,6 +73,7 @@ def main(k):
 			BPSpaceDict[BPHash] += count
 			BPSpaceDict[reverseHash] += count
 
+	print("BasePercentageIndex\tCount")
 	for i,hash in enumerate(BPSpaceDict):
 		print("%i\t%d" % (i, BPSpaceDict[hash]) )
 

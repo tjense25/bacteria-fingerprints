@@ -14,7 +14,7 @@ if (length(args) == 0) {
 in_file <- args[1]
 BPSpaceCounts <- read_tsv(in_file)
 
-ggplot(BPSpaceCounts, aes(BPS, COUNT)) +
+ggplot(BPSpaceCounts, aes(BasePercentageIndex, Count, colour=Gene)) +
 	geom_point()
 
-ggsave("ecoli_10mer_fingerprint.jpg")
+ggsave("resistanceGenesSpectrum.jpg")
