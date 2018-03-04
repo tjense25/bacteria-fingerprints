@@ -24,7 +24,7 @@ def main(k):
                     break
 
 	        for T_count in range(k + 1):
-		    count = A_count + C_count + G_count + T_count;
+		    count = A_count + C_count + G_count + T_count
 		    if count == k:
 			baseCounts.append((A_count,C_count,G_count,T_count))
 		    elif count > k:
