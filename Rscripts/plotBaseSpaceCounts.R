@@ -24,15 +24,9 @@ mutate <- function(geneName, Spectrum) {
 
 geneList <- c("IMP-4", "VIM-1", "NDM-1", "KPC-2")
 
-geneDfList <- lapply(geneList, function(x) { return(mutate(x, BPSpaceCounts)) } )
+combinedSpectrum <- lapply(geneList, function(x) { return(mutate(x, BPSpaceCounts)) } )
 
-combinedSpectrum <- geneDfList[[1]]
-for (i in 2:length(geneDfList)) {
-	combinedSepctrum <- rbind(combinedSpectrum, geneDfList[[i]])
-}
-
-
-
+combinedSpectrum <- rbind(combinedSpectrum[[1]], combinedSpectrum[[2]], combinedSpectrum[[3]], combinedSpectrum[[4]])
 
 ggplot(combinedSpectrum, aes(BasePercentageIndex, Frequency, colour=Gene)) +
 	geom_point()
