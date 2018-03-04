@@ -61,7 +61,7 @@ def  getBPHash(seq, k):
 
 	return (BPhash, reverseHash)
 
-def main(k):
+def main(k, name):
 	BPSpaceDict = initializeBPDict(k)
 	count = 0
 	for line in sys.stdin:
@@ -73,22 +73,21 @@ def main(k):
 			BPSpaceDict[BPHash] += count
 			BPSpaceDict[reverseHash] += count
 
-	print("BasePercentageIndex\tCount")
 	for i,hash in enumerate(BPSpaceDict):
-		print("%i\t%d" % (i, BPSpaceDict[hash]) )
+		print("%i\t%d\t%s" % (i, BPSpaceDict[hash], name) )
 
 def error():
 
-    USAGE = '''ERROR: Please specify kmer length as input parameter
+    USAGE = '''ERROR: Please specify kmer length and sequence name
         kmer length must be an integer greater than zero 
-        example: cat 10mers.fasta | ./convertToBasePercentageSpace.py 10'''
+        example: cat 10mers.fasta | ./convertToBasePercentageSpace.py 10 IMP-4'''
     
     print(USAGE)
     exit()
 
 if __name__ == "__main__":
     #make sure user passes in kmer size as argument
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
     	error()
     
     k = 0
@@ -98,9 +97,11 @@ if __name__ == "__main__":
         k = int(sys.argv[1])
     except ValueError:
 	error()
+
+    name = sys.argv[2]
     
     #print error if kmer size is not positive
     if k <= 0:
 	error()
 
-    main(k)
+    main(k,name)
