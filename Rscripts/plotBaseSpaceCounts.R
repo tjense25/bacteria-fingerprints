@@ -18,7 +18,7 @@ BPSpaceCounts <- as.data.frame(read_tsv(in_file))
 mutate <- function(geneName, Spectrum) {
 	print(geneName)
 	gene <- Spectrum[which(Spectrum[[3]] == geneName), ]
-	gene[["Frequency"]] <- gene[[2]] / max(gene[[2]]) 
+	gene[["Frequency"]] <- gene[[2]] / sum(gene[[2]]) 
 	return(gene)
 }
 
@@ -28,7 +28,7 @@ combinedSpectrum <- lapply(geneList, function(x) { return(mutate(x, BPSpaceCount
 
 combinedSpectrum <- rbind(combinedSpectrum[[1]], combinedSpectrum[[2]], combinedSpectrum[[3]], combinedSpectrum[[4]])
 
-ggplot(combinedSpectrum, aes(BasePercentageIndex, Frequency, colour=Gene)) +
+ggplot(combinedSpectrum, aes(BasePercentageIndex, Frequency, colour=Name)) +
 	geom_point()
 
-ggsave("resistanceGenesSpectrum.jpg")
+ggsave("resistancePlasmidSpectrum.jpg")
