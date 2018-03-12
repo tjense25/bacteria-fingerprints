@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys
 import collections
+from math import factorial as fac
 
 def initializeBPDict(k):
     #encoding of base space percentages as a number
@@ -61,6 +62,11 @@ def  getBPHash(seq, k):
 
 	return (BPhash, reverseHash)
 
+def choose(k, w, x, y, z):
+	numer = fac(k)
+	denom = fac(w)*fac(x)*fac(y)*fac(z)
+	return numer // denom
+
 def main(k, name):
 	BPSpaceDict = initializeBPDict(k)
 	count = 0
@@ -73,8 +79,14 @@ def main(k, name):
 			BPSpaceDict[BPHash] += count
 			BPSpaceDict[reverseHash] += count
 
+	total = sum(BPSpaceDict.itervalues())
+	sys.stderr.write(str(total) + "\n")
+	for key in BPSpaceDict:
+		BPSpaceDict[key] = BPSpaceDict[key] / float(total)
+
 	for i,hash in enumerate(BPSpaceDict):
-		print("%i\t%d\t%s" % (i, BPSpaceDict[hash], name) )
+		print("%d\t%4f\t%s" % (i, BPSpaceDict[hash], name) )
+
 
 def error():
 
@@ -105,3 +117,4 @@ if __name__ == "__main__":
 	error()
 
     main(k,name)
+
