@@ -1,0 +1,7 @@
+cat: ypestis.bps: No such file or directory
+Traceback (most recent call last):
+  File "../pyScripts/createSimulationSets.py", line 78, in <module>
+    main()
+  File "../pyScripts/createSimulationSets.py", line 73, in main
+    sys.stdout.write("%f\t" % prob)
+IOError: [Errno 5] Input/output error
