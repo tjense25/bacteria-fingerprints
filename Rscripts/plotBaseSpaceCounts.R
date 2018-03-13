@@ -15,20 +15,20 @@ in_file <- args[1]
 BPSpaceCounts <- as.data.frame(read_tsv(in_file))
 
 
-mutate <- function(geneName, Spectrum) {
-	print(geneName)
-	gene <- Spectrum[which(Spectrum[[3]] == geneName), ]
+mutate <- function(name, Spectrum) {
+	print(name)
+	gene <- Spectrum[which(Spectrum[[3]] == name), ]
 	gene[["Frequency"]] <- gene[[2]] / sum(gene[[2]]) 
 	return(gene)
 }
 
-geneList <- c("IMP-4", "VIM-1", "NDM-1", "KPC-2")
+nameList <- c("ecoli", "ypestis")
 
-combinedSpectrum <- lapply(geneList, function(x) { return(mutate(x, BPSpaceCounts)) } )
+combinedSpectrum <- lapply(nameList, function(x) { return(mutate(x, BPSpaceCounts)) } )
 
-combinedSpectrum <- rbind(combinedSpectrum[[1]], combinedSpectrum[[2]], combinedSpectrum[[3]], combinedSpectrum[[4]])
+combinedSpectrum <- rbind(combinedSpectrum[[1]], combinedSpectrum[[2]])
 
-ggplot(combinedSpectrum, aes(BasePercentageIndex, Frequency, colour=Name)) +
+ggplot(combinedSpectrum, aes(BasePercentageIndex, DeviationFromNormal, colour=Name)) +
 	geom_point()
 
-ggsave("resistancePlasmidSpectrum.jpg")
+ggsave("speciesDeviationFromNormalSpectrum.jpg")

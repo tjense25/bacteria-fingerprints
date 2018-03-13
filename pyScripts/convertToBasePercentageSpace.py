@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 import collections
-from math import factorial as fac
+from createSimulationSets import initializeBiasDict
 
 def initializeBPDict(k):
     #encoding of base space percentages as a number
@@ -62,11 +62,6 @@ def  getBPHash(seq, k):
 
 	return (BPhash, reverseHash)
 
-def choose(k, w, x, y, z):
-	numer = fac(k)
-	denom = fac(w)*fac(x)*fac(y)*fac(z)
-	return numer // denom
-
 def main(k, name):
 	BPSpaceDict = initializeBPDict(k)
 	count = 0
@@ -79,10 +74,11 @@ def main(k, name):
 			BPSpaceDict[BPHash] += count
 			BPSpaceDict[reverseHash] += count
 
+	biasDict = initializeBiasDict(k)
 	total = sum(BPSpaceDict.itervalues())
-	sys.stderr.write(str(total) + "\n")
-	for key in BPSpaceDict:
-		BPSpaceDict[key] = BPSpaceDict[key] / float(total)
+
+	for i,key in enumerate(BPSpaceDict):
+		BPSpaceDict[key] = BPSpaceDict[key] / float(total) - biasDict[i]
 
 	for i,hash in enumerate(BPSpaceDict):
 		print("%d\t%4f\t%s" % (i, BPSpaceDict[hash], name) )
