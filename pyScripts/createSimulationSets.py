@@ -75,10 +75,10 @@ def main(name, num_threads):
 	bias = initializeBiasDict(10)
 
 	
-	numTrainingSamples = 10000
+	numTrainingSamples = 3950
 
 	p = Pool(num_threads)
-	sampleList = p.map(getSampleProb, [i for i in range(numTrainingSamples)])
+	sampleList = p.map(getSampleProb, range(numTrainingSamples))
 
 	for sampleProb in sampleList:
 		for prob in sampleProb:
