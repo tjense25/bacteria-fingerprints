@@ -2,6 +2,7 @@
 import sys
 import collections
 import random
+from multiprocessing import Pool
 from math import factorial as fac
 from bisect import bisect_left as floor
 
@@ -43,32 +44,43 @@ def initializeBiasDict(k):
 			break
     return bias
 
-def main(name):
+def getSampleProb(i):
+	sampleProb = [0] * 286
+	global cumulativeProbList
+	global bias
+	global sample_size
+	for sample in range(sample_size):	
+		randomProb = random.uniform(0,1)
+		index = floor(cumulativeProbList, randomProb)
+		sampleProb[index] += 1
+
+	for index,prob in enumerate(sampleProb):
+		sampleProb[index] = (sampleProb[index] / float(sample_size)) - bias[index]
+
+	return sampleProb
+
+
+def main(name, num_threads):
 	basePercentageProb = []
-	sample_size = 1000000
 
 	sys.stdin.readline()
 	for line in sys.stdin:
 	    line = line.split()
 	    basePercentageProb.append(float(line[1]))
 
+	global cumulativeProbList 
 	cumulativeProbList = initCumulativeProbList(basePercentageProb)	
 	    
+	global bias
 	bias = initializeBiasDict(10)
+
 	
-	numTrainingSamples = 100000
+	numTrainingSamples = 10000
 
-	for i in range(numTrainingSamples):
-		
-		sampleProb = [0] * 286
-		for sample in range(sample_size):	
-			randomProb = random.uniform(0,1)
-			index = floor(cumulativeProbList, randomProb)
-			sampleProb[index] += 1
+	p = Pool(num_threads)
+	sampleList = p.map(getSampleProb, [i for i in range(numTrainingSamples)])
 
-		for index,prob in enumerate(sampleProb):
-		    sampleProb[index] = (sampleProb[index] / float(sample_size)) - bias[index]
-		  
+	for sampleProb in sampleList:
 		for prob in sampleProb:
 			sys.stdout.write("%f\t" % prob)
 		sys.stdout.write("%s\n" % name)
@@ -76,5 +88,12 @@ def main(name):
 
 if __name__ == "__main__":
 	name = sys.argv[1]
-	main(name)
+	num_threads = int(sys.argv[2])
+
+	#initialize global variables
+	bias = {}
+	cumulativeProbList = {}
+	sample_size = 1000000
+	
+	main(name, num_threads)
 	    

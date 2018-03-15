@@ -17,6 +17,7 @@ if (length(args) == 0) {
 
 in_file <- args[1]
 fingerprints <- read_tsv(in_file)
+fingerprints <- fingerprints[complete.cases(fingerprints), ]
 
 #remove the toxicity column of matrix and store result as matrix 
 characterMatrix <- as.matrix(select(fingerprints, -species))
