@@ -14,4 +14,4 @@ export PBS_QUEUE=batch
 
 NAME=$1
 
-cat $1.bps | ../pyScripts/createSimulationSets.py $1 8 >> trainingsample.$1plasmid
+cat $1.bps | ./pyScripts/createSimulationSets.py $1 8 >> trainingsample.$1
