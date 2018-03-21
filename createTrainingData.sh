@@ -1,17 +1,23 @@
 #!/bin/bash
 
-#SBATCH --time=00:10:00   # walltime
-#SBATCH --ntasks=8   # number of processor cores (i.e. tasks)
-#SBATCH --nodes=1   # number of nodes
-#SBATCH --mem-per-cpu=400M   # memory per CPU core
-#SBATCH -J "E Coli Training Data $1"   # job name
+jellyfish=/fslhome/tjense25/fsl_groups/fslg_genome/bacteria-fingerprints/jellyfish-2.2.7/jf/bin/jellyfish
+mkdir combined
 
-# Compatibility variables for PBS. Delete if not needed.
-export PBS_NODEFILE=`/fslapps/fslutils/generate_pbs_nodefile`
-export PBS_JOBID=$SLURM_JOB_ID
-export PBS_O_WORKDIR="$SLURM_SUBMIT_DIR"
-export PBS_QUEUE=batch
+REFERENCE_GENOMES=$(ls bacteria)
+for REF in $REFERENCE_GENOMES
+do
+	echo $REF
+	$jellyfish count -m 10 -s 10M -t 4 bacteria/$REF
+	$jellyfish dump mer_counts.jf > 10mercounts.fasta
+	for PLASMID in IMP-4 VIM-1 NDM-1 KPC-2
+	do
+		echo "$REF+$PLASMID"
+		cat 10mercounts.fasta plasmid/Plasmid-$PLASMID*10mer.fasta | pyScripts/convertToBasePercentageSpace.py 10 $REF+$PLASMID > combined/$REF+$PLASMID.bps
+		#SLURM_ID=$(sbatch submitJob.sh combined/$REF+$PLASMID | awk '{print $4}')
+	done
+		
+done
 
-NAME=$1
+#sbatch afterok:$SLURM_ID combine.sh
 
-cat $1.bps | ./pyScripts/createSimulationSets.py $1 8 >> trainingsample.$1
+
