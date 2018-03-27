@@ -1,3 +1,0 @@
-ERROR: Please specify kmer length and sequence name
-        kmer length must be an integer greater than zero 
-        example: cat 10mers.fasta | ./convertToBasePercentageSpace.py 10 IMP-4

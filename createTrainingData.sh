@@ -1,23 +1,42 @@
 #!/bin/bash
 
 jellyfish=/fslhome/tjense25/fsl_groups/fslg_genome/bacteria-fingerprints/jellyfish-2.2.7/jf/bin/jellyfish
-mkdir combined
+if [ ! -d bps ]
+then
+	mkdir bps
+fi
+
+if [ -d temp ]
+then
+	rm -rf temp
+fi
+mkdir temp
+
+PLASMID_REFERENCE=$(ls plasmids)
+for PLASMID in $PLASMID_REFERENCE
+do
+	echo "creating 10mer counts for $PLASMID"
+	GENE=$(echo $PLASMID | cut -d '.' -f 1)
+	$jellyfish count -m 10 -s 1M -t 4 plasmids/$PLASMID
+	$jellyfish dump mer_counts.jf > temp/$GENE.10mers
+done
 
 REFERENCE_GENOMES=$(ls bacteria)
 for REF in $REFERENCE_GENOMES
 do
-	echo $REF
+	NAME=$(echo $REF | cut -d '.' -f 1)
+	echo "creating 10mer counts for $NAME"
 	$jellyfish count -m 10 -s 10M -t 4 bacteria/$REF
-	$jellyfish dump mer_counts.jf > 10mercounts.fasta
+	$jellyfish dump mer_counts.jf > temp/$NAME.10mers
+	sbatch submitJob.sh $NAME
 	for PLASMID in IMP-4 VIM-1 NDM-1 KPC-2
 	do
-		echo "$REF+$PLASMID"
-		cat 10mercounts.fasta plasmid/Plasmid-$PLASMID*10mer.fasta | pyScripts/convertToBasePercentageSpace.py 10 $REF+$PLASMID > combined/$REF+$PLASMID.bps
-		#SLURM_ID=$(sbatch submitJob.sh combined/$REF+$PLASMID | awk '{print $4}')
+		echo "$NAME+$PLASMID"
+		SLURM_ID=$(sbatch submitJob.sh $NAME $PLASMID | awk '{print $4}')
 	done
-		
+
 done
 
-#sbatch afterok:$SLURM_ID combine.sh
+rm mer_counts.jf
 
-
+sbatch -d afterok:$SLURM_ID combine.sh

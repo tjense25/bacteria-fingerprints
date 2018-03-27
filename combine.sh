@@ -6,5 +6,7 @@
 #SBATCH --mem-per-cpu=512M   # memory per CPU core
 #SBATCH -J "E Coli Training Data $1"   # job name
 
-cat trainingsample* >> combinedTrainingSample.tsv
+cat slurm* >> combinedTrainingSample.tsv
+rm -f slurm*
+rm -rf temp
 

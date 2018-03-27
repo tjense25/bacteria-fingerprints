@@ -6,8 +6,20 @@
 #SBATCH --mem-per-cpu=400M   # memory per CPU core
 #SBATCH -J "E Coli Training Data $1"   # job name
 
-# Compatibility variables for PBS. Delete if not needed.
 
-NAME=$1
+SPECIES=$1
+PLASMID="FALSE"
 
-cat $NAME.bps | ./pyScripts/createSimulationSets.py $NAME 8 >> trainingsample.$1
+if [ $# -eq 2 ]
+then
+	PLASMID=$2
+fi
+
+if [ ! "$PLASMID" == "FALSE" ]
+then
+	cat temp/$SPECIES.10mers temp/*$PLASMID.10mers | pyScripts/convertToBasePercentageSpace.py 10 $SPECIES+$PLASMID > bps/$SPECIES+$PLASMID.bps 
+	cat bps/$SPECIES+$PLASMID.bps | pyScripts/createSimulationSets.py $SPECIES+$PLASMID 8
+else
+	cat temp/$SPECIES.10mers | pyScripts/convertToBasePercentageSpace.py 10 $SPECIES > bps/$SPECIES.bps
+	cat bps/$SPECIES.bps | pyScripts/createSimulationSets.py $SPECIES 8
+fi

@@ -74,11 +74,11 @@ def main(k, name):
 			BPSpaceDict[BPHash] += count
 			BPSpaceDict[reverseHash] += count
 
-	#biasDict = initializeBiasDict(k)
+	biasDict = initializeBiasDict(k)
 	total = sum(BPSpaceDict.itervalues())
 
 	for i,key in enumerate(BPSpaceDict):
-		BPSpaceDict[key] = BPSpaceDict[key] / float(total) #- biasDict[i]
+		BPSpaceDict[key] = BPSpaceDict[key] / float(total) - biasDict[i]
 
 	for i,hash in enumerate(BPSpaceDict):
 		print("%d\t%4f\t%s" % (i, BPSpaceDict[hash], name) )
