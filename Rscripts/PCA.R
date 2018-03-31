@@ -37,6 +37,7 @@ ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$species)) +
 	      plot.title = element_text(hjust = 0.5),
 	      panel.border = element_blank(),
 	      panel.grid.major = element_blank(),
+	      legend.position="none",
 	      axis.line = element_line(colour = "black"))
 
 
@@ -61,4 +62,4 @@ ggplot(percentVEdf, aes(PC, PercentExplained, fill=PC)) +
 	      legend.position="none",
 	      axis.line = element_line(colour = "black"))
 
-ggsave("varainceExplainedPCA.pdf")
+ggsave("varianceExplainedPCA.pdf")
