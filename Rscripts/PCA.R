@@ -30,7 +30,7 @@ PCs <- as.data.frame(fingerprintPC$x)
 
 ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$species)) +
 	geom_point() +
-	labs(colour = "Species") + 
+	labs(colour = "species") + 
 	ggtitle("Principal Component Analysis Plot") +
 	theme_bw() + 
 	theme(text = element_text(size=20),
