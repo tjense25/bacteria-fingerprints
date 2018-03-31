@@ -40,7 +40,7 @@ ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$species)) +
 	      axis.line = element_line(colour = "black"))
 
 
-ggsave("PCA.jpeg")
+ggsave("PCA.pdf", width = 10, height = 10, units = "in")
 
 #find out how much variance is explained by the first 10 principal components
 #and make a graphic to describe this
