@@ -48,10 +48,9 @@ results <- resample(learner, task, resampleDesc, show.info=FALSE)
 
 parallelStop()
 
-predictions <- results$pred$data
-save(predictions, file="predictions.Rdata")
+save(results, file="results.Rdata")
 
-metrics <- performance(results$pred, measures=list(mlr::acc, tpr, tnr, ppv, f1, auc))
+metrics <- performance(results$pred, measures=mlr::acc)
 
 print(metrics)
 
