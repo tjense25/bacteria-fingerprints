@@ -83,7 +83,8 @@ def main(name, num_threads):
 	for sampleProb in sampleList:
 		for prob in sampleProb:
 			sys.stdout.write("%f\t" % prob)
-		sys.stdout.write("%s\n" % name)
+		names = name.split('+')
+		sys.stdout.write("%s\t%s\n" % names[0], names[1])
 
 
 if __name__ == "__main__":

@@ -8,18 +8,14 @@
 
 
 SPECIES=$1
-PLASMID="FALSE"
+PLASMID=$2
 
-if [ $# -eq 2 ]
-then
-	PLASMID=$2
-fi
 
-if [ ! "$PLASMID" == "FALSE" ]
+if [ ! "$PLASMID" == "None" ]
 then
 	cat temp/$SPECIES.10mers temp/*$PLASMID.10mers | pyScripts/convertToBasePercentageSpace.py 10 $SPECIES+$PLASMID > bps/$SPECIES+$PLASMID.bps 
 	cat bps/$SPECIES+$PLASMID.bps | pyScripts/createSimulationSets.py $SPECIES+$PLASMID 8
 else
 	cat temp/$SPECIES.10mers | pyScripts/convertToBasePercentageSpace.py 10 $SPECIES > bps/$SPECIES.bps
-	cat bps/$SPECIES.bps | pyScripts/createSimulationSets.py $SPECIES 8
+	cat bps/$SPECIES.bps | pyScripts/createSimulationSets.py $SPECIES+$PLASMID 8
 fi
