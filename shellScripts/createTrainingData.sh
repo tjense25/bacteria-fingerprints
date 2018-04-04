@@ -28,7 +28,7 @@ do
 	echo "creating 10mer counts for $NAME"
 	$jellyfish count -m 10 -s 10M -t 4 bacteria/$REF
 	$jellyfish dump mer_counts.jf > temp/$NAME.10mers
-	for PLASMID in None IMP-4 VIM-1 NDM-1 KPC-2
+	for PLASMID in None IMP-4 VIM-1 NDM-1 KPC-2 CONTROL
 	do
 		echo "$NAME+$PLASMID"
 		SLURM_ID=$(sbatch shellScripts/submitJob.sh $NAME $PLASMID | awk '{print $4}')
