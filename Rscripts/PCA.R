@@ -37,8 +37,8 @@ ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$species)) +
 	geom_point() +
 	labs(colour = "species") + 
 	ggtitle("Principal Component Analysis Plot") +
-	xlab(paste0("PC1 (", percentVE[1],"%)")) +
-	ylab(paste0("PC2 (", percentVE[2],"%)")) + 
+	xlab(paste0("PC1 (", sprintf(percentVE[1], fmt="%#.4g"),"%)")) +
+	ylab(paste0("PC2 (", sprintf(percentVE[2], fmt="%#.4g"),"%)")) + 
 	theme_bw() + 
 	theme(text = element_text(size=20),
 	      plot.title = element_text(hjust = 0.5),
