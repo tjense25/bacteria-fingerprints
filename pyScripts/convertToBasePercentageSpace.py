@@ -65,10 +65,12 @@ def  getBPHash(seq, k):
 def main(k, name):
 	BPSpaceDict = initializeBPDict(k)
 	count = 0
+	totalCount = 0
 	for line in sys.stdin:
 		line.strip()
 		if line[0] == '>':
 			count = int(line[1:])
+			totalCount += count * 2
 		else:
 			BPHash, reverseHash= getBPHash(line, k)
 			BPSpaceDict[BPHash] += count
@@ -79,9 +81,9 @@ def main(k, name):
 
 	for i,key in enumerate(BPSpaceDict):
 		BPSpaceDict[key] = BPSpaceDict[key] / float(total) #- biasDict[i]
-
+	print(totalCount)
 	for i,hash in enumerate(BPSpaceDict):
-		print("%d\t%4f\t%s" % (i, BPSpaceDict[hash], name) )
+		print("%4f" % (BPSpaceDict[hash]))
 
 
 def error():
