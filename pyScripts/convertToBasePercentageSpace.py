@@ -81,9 +81,10 @@ def main(k, name):
 
 	for i,key in enumerate(BPSpaceDict):
 		BPSpaceDict[key] = BPSpaceDict[key] / float(total) #- biasDict[i]
-	print(totalCount)
+	sys.stdout.write("%s %i " % (name, totalCount))
 	for i,hash in enumerate(BPSpaceDict):
-		print("%4f" % (BPSpaceDict[hash]))
+		sys.stdout.write("%f " % (BPSpaceDict[hash]))
+	sys.stdout.write('\n')
 
 
 def error():
