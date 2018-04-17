@@ -36,7 +36,7 @@ fingerprint <- read_tsv(in_file)
 fingerprint <- as.data.frame(unclass(fingerprint))
 str(fingerprint)
 
-task <- makeClassifTask(data = fingerprint, target = "species")
+task <- makeClassifTask(data = fingerprint, target = "label")
 learner <- makeLearner("classif.randomForest", predict.type = "prob")
 resampleDesc = makeResampleDesc("CV", iters = 8)
 
