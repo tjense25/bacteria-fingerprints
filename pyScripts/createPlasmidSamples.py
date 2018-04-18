@@ -2,12 +2,8 @@
 
 import sys
 import random
-from createSpeciesTrainingSet import initializeBiasDict
+from createSpeciesTrainingSet import initializeBiasDict, writeHeader, loadBPS
 
-def writeHeader():
-	for i in range(1,287):
-		sys.stdout.write("%i\t" % i)
-	sys.stdout.write("label\n")
 	
 
 def combinePlasmids(plasmids):
@@ -22,15 +18,6 @@ def combinePlasmids(plasmids):
 	return combinedBPS
 
 
-def loadBPS(BPSPath):
-	inFile = open(BPSPath, 'r')
-	bps = []
-	for line in inFile:
-		cols = line.strip().split()
-		#create tuple for each sample with (name::str, size::int, bps::List)
-		bps.append((cols[0], int(cols[1]), list(map(float, cols[2:]))))
-	inFile.close()
-	return bps
 
 def main(targetPlasmidsPath, controlPlasmidsPath):
 	targetPlasmids = loadBPS(targetPlasmidsPath)

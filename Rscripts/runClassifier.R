@@ -34,7 +34,6 @@ fingerprint <- read_tsv(in_file)
 
 #convert all characters into factors
 fingerprint <- as.data.frame(unclass(fingerprint))
-str(fingerprint)
 
 task <- makeClassifTask(data = fingerprint, target = "label")
 learner <- makeLearner("classif.randomForest", predict.type = "prob")
@@ -50,7 +49,7 @@ parallelStop()
 
 save(results, file="results.Rdata")
 
-metrics <- performance(results$pred, measures=mlr::acc)
+metrics <- performance(results$pred, measures=[mlr::acc,mlr::multiclass.au1p,mlr::tnr,mlr::tpr])
 
 print(metrics)
 

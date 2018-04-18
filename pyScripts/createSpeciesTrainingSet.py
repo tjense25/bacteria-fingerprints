@@ -6,26 +6,37 @@ from functools import partial
 from multiprocessing import Pool
 from math import factorial as fac
 from bisect import bisect_left as floor
-from createPlasmidSamples import loadBPS, writeHeader
 
 def initCumulativeProbList(speciesBPS):
 	cumulativeProbList = []	
-	for bpsTuple in speciesBPS:
-		name, count, bps = bpsTuple
-		print("Name:", name)
+	for name,count,bps in speciesBPS:
 		probList = []
 		total = 0
 		for i,prob in enumerate(bps):
 			total += prob
-			cumulativeProbList.append(total)
-		print("cumProbList:", probList)
+			probList.append(total)
 		cumulativeProbList.append((name, probList))
 	return cumulativeProbList
+
+def writeHeader():
+	for i in range(286):
+		sys.stdout.write("%i\t" % i)
+	sys.stdout.write("label\n")
 	
 def choose(k, w, x, y, z):
 	numer = fac(k)
 	denom = fac(w)*fac(x)*fac(y)*fac(z)
 	return numer // denom
+
+def loadBPS(BPSPath):
+	inFile = open(BPSPath, 'r')
+	bps = []
+	for line in inFile:
+		cols = line.strip().split()
+		#create tuple for each sample with (name::str, size::int, bps::List)
+		bps.append((cols[0], int(cols[1]), list(map(float, cols[2:]))))
+	inFile.close()
+	return bps
 
 def initializeBiasDict(k):
     index = 0
@@ -57,12 +68,10 @@ def getSampleProb(cumProbList, num_reads, iterator):
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
 		for read in random.rand(num_reads):
-			index = floor(probList, read)
+			index = floor(probList, read*probList[-1])
 			bpsCounts[index] += 1
-		print("before normalization:",sampleProb)
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
-		print("after:",sampleProb)
-		results.append((name, sampleProb))
+		results.append((name, sampleBPS))
 
 	return results
 
@@ -72,7 +81,8 @@ def main(bpsPath, num_reads, num_training_samples, num_threads):
 	speciesBPS = loadBPS(bpsPath)
 	cumulativeProbList = initCumulativeProbList(speciesBPS)	
 	bias = initializeBiasDict(10)
-	
+
+	writeHeader()	
 	pool = Pool(num_threads)
 	func = partial(getSampleProb, cumulativeProbList, num_reads)
 	results = pool.map(func, range(num_training_samples))
@@ -87,15 +97,11 @@ def main(bpsPath, num_reads, num_training_samples, num_threads):
 
 
 if __name__ == "__main__":
-	random.seed(1) #set seed for computational reproducibility
+	random.seed(2) #set seed for computational reproducibility
 
 	bpsPath = sys.argv[1]
 	num_reads = int(sys.argv[2])
 	num_training_samples = int(sys.argv[3])
 	num_threads = int(sys.argv[4])
 
-	#initialize global variables
-	bias = {}
-	cumulativeProbList = {}
-	
 	main(bpsPath, num_reads, num_training_samples, num_threads)
