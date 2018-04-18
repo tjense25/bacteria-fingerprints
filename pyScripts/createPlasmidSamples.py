@@ -2,6 +2,7 @@
 
 import sys
 import random
+from createSpeciesTrainingSet import initializeBiasDict
 
 def writeHeader():
 	for i in range(1,287):
@@ -21,20 +22,20 @@ def combinePlasmids(plasmids):
 	return combinedBPS
 
 
-
-def loadPlasmids(plasmidsPath):
-	inFile = open(plasmidsPath, 'r')
-	controlPlasmids = []
+def loadBPS(BPSPath):
+	inFile = open(BPSPath, 'r')
+	bps = []
 	for line in inFile:
 		cols = line.strip().split()
 		#create tuple for each sample with (name::str, size::int, bps::List)
-		controlPlasmids.append((cols[0], int(cols[1]), list(map(float, cols[2:]))))
+		bps.append((cols[0], int(cols[1]), list(map(float, cols[2:]))))
 	inFile.close()
-	return controlPlasmids
+	return bps
 
 def main(targetPlasmidsPath, controlPlasmidsPath):
-	targetPlasmids = loadPlasmids(targetPlasmidsPath)
-	controlPlasmids = loadPlasmids(controlPlasmidsPath)
+	targetPlasmids = loadBPS(targetPlasmidsPath)
+	controlPlasmids = loadBPS(controlPlasmidsPath)
+	bias = initializeBiasDict(10)
 	writeHeader()
 	for i in range(5):
 		targetPlasmid = None
@@ -48,8 +49,8 @@ def main(targetPlasmidsPath, controlPlasmidsPath):
 
 			plasmids.extend(random.sample(controlPlasmids, numControlPlasmids))
 			combinedBPS = combinePlasmids(plasmids)
-			for b in combinedBPS:
-				sys.stdout.write("%f\t" % b)
+			for i,b in enumerate(combinedBPS):
+				sys.stdout.write("%f\t" % (b - bias[i]))
 			sys.stdout.write("%s\n" % (targetPlasmid[0] if targetPlasmid else "none"))
 
 if __name__ == "__main__":
