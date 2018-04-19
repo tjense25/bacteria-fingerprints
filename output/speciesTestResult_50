@@ -13,14 +13,7 @@ The following objects are masked from ‘package:base’:
     intersect, setdiff, setequal, union
 
 Starting parallelization in mode=socket with cpus=8.
-Parsed with column specification:
-cols(
-  .default = col_double(),
-  label = col_character()
-)
-See spec(...) for full column specifications.
-Exporting objects to slaves for mode socket: .mlr.slave.options
-Mapping in parallel: mode = socket; cpus = 8; elements = 8.
-Stopped parallelization. All cleaned up.
-Error: unexpected '[' in "metrics <- performance(results$pred, measures=["
+Error in makeSupervisedTask("classif", data, target, weights, blocking,  : 
+  Column names of data doesn't contain target var: label
+Calls: makeClassifTask -> makeSupervisedTask -> stopf
 Execution halted

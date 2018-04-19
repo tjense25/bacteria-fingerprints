@@ -18,14 +18,20 @@ def initCumulativeProbList(speciesBPS):
 		cumulativeProbList.append((name, probList))
 	return cumulativeProbList
 
-def writeHeader():
-	for i in range(286):
+def writeHeader(k):
+	n = choose2(k + 3, 3)
+	for i in range(n):
 		sys.stdout.write("%i\t" % i)
 	sys.stdout.write("label\n")
 	
-def choose(k, w, x, y, z):
+def choose4(k, w, x, y, z):
 	numer = fac(k)
 	denom = fac(w)*fac(x)*fac(y)*fac(z)
+	return numer // denom
+
+def choose2(a, b):
+	numer = fac(a)
+	denom = fac(b) * fac(a -b)
 	return numer // denom
 
 def loadBPS(BPSPath):
@@ -54,16 +60,17 @@ def initializeBiasDict(k):
                 if count > k:
                     break
 
-	        for T_count in range(k + 1):
+		for T_count in range(k + 1):
 		    count = A_count + C_count + G_count + T_count
 		    if count == k:
-			bias[index] = choose(k, A_count,C_count,G_count,T_count) / float(4**k)
+			bias[index] = choose4(k, A_count,C_count,G_count,T_count) / float(4**k)
 			index += 1
 		    elif count > k:
 			break
     return bias
 
 def getSampleProb(cumProbList, num_reads, iterator):
+	random.seed(iterator)
 	results = []
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
@@ -76,13 +83,13 @@ def getSampleProb(cumProbList, num_reads, iterator):
 	return results
 
 
-def main(bpsPath, num_reads, num_training_samples, num_threads):
+def main(bpsPath, k, num_reads, num_training_samples, num_threads):
 
 	speciesBPS = loadBPS(bpsPath)
 	cumulativeProbList = initCumulativeProbList(speciesBPS)	
-	bias = initializeBiasDict(10)
+	bias = initializeBiasDict(k)
 
-	writeHeader()	
+	writeHeader(k)	
 	pool = Pool(num_threads)
 	func = partial(getSampleProb, cumulativeProbList, num_reads)
 	results = pool.map(func, range(num_training_samples))
@@ -97,11 +104,10 @@ def main(bpsPath, num_reads, num_training_samples, num_threads):
 
 
 if __name__ == "__main__":
-	random.seed(2) #set seed for computational reproducibility
-
 	bpsPath = sys.argv[1]
-	num_reads = int(sys.argv[2])
-	num_training_samples = int(sys.argv[3])
-	num_threads = int(sys.argv[4])
+	k = int(sys.argv[2])
+	num_reads = int(sys.argv[3])
+	num_training_samples = int(sys.argv[4])
+	num_threads = int(sys.argv[5])
 
 	main(bpsPath, num_reads, num_training_samples, num_threads)

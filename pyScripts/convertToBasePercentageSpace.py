@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import sys
 import collections
-from createSimulationSets import initializeBiasDict
 
 def initializeBPDict(k):
     #encoding of base space percentages as a number
@@ -76,11 +75,10 @@ def main(k, name):
 			BPSpaceDict[BPHash] += count
 			BPSpaceDict[reverseHash] += count
 
-	#biasDict = initializeBiasDict(k)
 	total = sum(BPSpaceDict.itervalues())
 
 	for i,key in enumerate(BPSpaceDict):
-		BPSpaceDict[key] = BPSpaceDict[key] / float(total) #- biasDict[i]
+		BPSpaceDict[key] = BPSpaceDict[key] / float(total) 
 	sys.stdout.write("%s %i " % (name, totalCount))
 	for i,hash in enumerate(BPSpaceDict):
 		sys.stdout.write("%f " % (BPSpaceDict[hash]))

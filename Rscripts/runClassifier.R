@@ -49,7 +49,7 @@ parallelStop()
 
 save(results, file="results.Rdata")
 
-metrics <- performance(results$pred, measures=[mlr::acc,mlr::multiclass.au1p,mlr::tnr,mlr::tpr])
+metrics <- performance(results$pred, measure=list(mlr::acc,mlr::multiclass.au1p))
 
 print(metrics)
 
