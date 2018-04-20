@@ -30,4 +30,4 @@ mutationPlot <- ggplot(mutationTestData, aes(mutRate)) +
 
 require(gridExtra)
 combined <- grid.arrange(speciesPlot, mutationPlot, ncol=2)
-ggsave(speciesPlot, file="plots/speciesResultsPlot.jpeg")
+ggsave(combined, file="plots/speciesResultsPlot.jpeg")
