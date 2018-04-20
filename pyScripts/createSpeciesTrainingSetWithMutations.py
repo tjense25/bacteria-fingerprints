@@ -10,16 +10,16 @@ from createSpeciesTrainingSet import *
 from generateMutationGraph import createMutationGraph
 
 def getSampleProbWithMutation(cumProbList, num_reads, mutationGraph, mutation_rate, iterator):
-	random.seed(iterator)
+	local_random = random.Random(iterator) #make random thread safe and set seed
 	results = []
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
-		for read in random.rand(num_reads):
-			index = floor(probList, read*probList[-1]) #probabilistically select a random BPSkmer with replacement
+		for read in local_random.rand(num_reads):
+			index = floor(probList, read*probList[-1]) #probabilistically select a local_random BPSkmer with replacement
 
-			#probabilistically simulate a random mutation in the kmer read
-			while random.rand() < mutation_rate:
-				index = random.choice(mutationGraph[index])
+			#probabilistically simulate a local_random mutation in the kmer read
+			while local_random.rand() < mutation_rate:
+				index = local_random.choice(mutationGraph[index])
 
 			bpsCounts[index] += 1 #store count of kmers
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies

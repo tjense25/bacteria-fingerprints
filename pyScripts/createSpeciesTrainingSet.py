@@ -44,6 +44,9 @@ def loadBPS(BPSPath):
 	inFile.close()
 	return bps
 
+'''Iterate through all possible bspKmer and find the
+frequency which they appear given all possible sequence kmers.
+Stores these frequencies in bias dictionary'''
 def initializeBiasDict(k):
     index = 0
     bias = collections.OrderedDict()
@@ -70,11 +73,11 @@ def initializeBiasDict(k):
     return bias
 
 def getSampleProb(cumProbList, num_reads, iterator):
-	random.seed(iterator)
+	local_random = random.Random(iterator) #make random thread safe & set seed for comp. reproducibility
 	results = []
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
-		for read in random.rand(num_reads):
+		for read in local_random.rand(num_reads):
 			index = floor(probList, read*probList[-1])
 			bpsCounts[index] += 1
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
@@ -110,4 +113,4 @@ if __name__ == "__main__":
 	num_training_samples = int(sys.argv[4])
 	num_threads = int(sys.argv[5])
 
-	main(bpsPath, num_reads, num_training_samples, num_threads)
+	main(bpsPath, k, num_reads, num_training_samples, num_threads)

@@ -36,7 +36,8 @@ if (length(args) >= 2) {
 		TEST <- read_tsv(TEST_file)
 		TestIndex <- nrow(fingerprint) + 1
 		fingerprint <- rbind(fingerprint, TEST)
-		test.set <- 1:TestIndex
+		train.set <- 1:TestIndex
+		test.set <- TestIndex:nrow(fingerprint)
 		crossValidate <- FALSE
 	}
 }
@@ -50,20 +51,20 @@ fingerprint <- as.data.frame(unclass(fingerprint))
 
 task <- makeClassifTask(data = fingerprint, target = "label")
 learner <- makeLearner("classif.randomForest", predict.type = "prob")
-resampleDesc = makeResampleDesc("CV", iters = 8)
 
 if (crossValidate) {
 #set random seed for computational reproducibility
 	parallelStartSocket(cores)
 	set.seed(1)
 
+	resampleDesc = makeResampleDesc("CV", iters = 10)
 	#make predictions by combinidng the data with the algorithm with the resampling strategy
 	results <- resample(learner, task, resampleDesc, show.info=FALSE)
 	parallelStop()
 	save(results, file="results.Rdata")
 	preds <- results$pred
 } else {
-	model = train(learner, task, subset = test.set)
+	model = train(learner, task, subset = train.set)
 	preds <- predict(model, task = task, subset = test.set)
 }
 

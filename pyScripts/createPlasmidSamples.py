@@ -42,6 +42,7 @@ def main(targetPlasmidsPath, controlPlasmidsPath, k, num_samples):
 			sys.stdout.write("%s\n" % (targetPlasmid[0] if targetPlasmid else "none"))
 
 if __name__ == "__main__":
+	random.seed(1) #set seed for computational reproducibility
 	targetPlasmidsPath = sys.argv[1]
 	controlPlasmidsPath = sys.argv[2]
 	k = int(sys.argv[3])

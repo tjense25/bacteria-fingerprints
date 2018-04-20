@@ -7,6 +7,9 @@
 #SBATCH -J "E Coli Training Data $1"   # job name
 module load r/3/3
 
-INPUT=$1
-Rscript --vanilla Rscripts/runClassifier.R $INPUT 8
-
+if [ $# -lt 2 ]
+then
+	Rscript --vanilla Rscripts/runClassifier.R $1 8
+else
+	Rscript --vanilla Rscripts/runClassifier.R $1 $2
+fi

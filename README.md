@@ -4,7 +4,7 @@ Using the base percentage fingerprint of the 10-mer decomposition of genomic and
 
 ## INSTALL JELLYFISH
 Our analysis requires the use of jellyfish to count the number of unique
-10-mers in the genome. Following steps document how to install jellyfish from
+k-mers in a genome sequence. Following steps document how to install jellyfish from
 source:
 
 Get the source code directly by by preforming a wget on the source code link
