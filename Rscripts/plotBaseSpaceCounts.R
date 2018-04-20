@@ -22,7 +22,7 @@ mutate <- function(name, Spectrum) {
 	return(gene)
 }
 
-nameList <- c("ecoli", "ypestis")
+nameList <- c("pneumonia", "pyogenes")
 
 combinedSpectrum <- lapply(nameList, function(x) { return(mutate(x, BPSpaceCounts)) } )
 

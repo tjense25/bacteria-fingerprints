@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 import sys
+import random
 from genBPSkmers import genBPSkmers
+from math import factorial as fac
 
 def hashKmerTuple(countTuple, k):
 	A = (k + 1)**3
@@ -47,6 +49,45 @@ def getAdjacentKmers(kmerTuple):
 
 	return adjacentKmers
 
+def simulateMutations(mutationGraph, k):
+	n = fac(k + 3) // fac(3) // fac(k)
+	bpsSpace = [0] * n
+	s = 10000000
+	for i in range(s):
+		index = random.randint(0, n -1)
+		for j in range(k):
+			index = random.choice(mutationGraph[index])
+		bpsSpace[index] += 1
+	for count in bpsSpace: sys.stdout.write("%.4f " % (count / float(s)))
+	print
+	for freq in initializeBiasDict(k): sys.stdout.write("%.4f " % freq)
+	
+
+
+def initializeBiasDict(k):
+    index = 0
+    bias = [0] * (fac(k + 3) // fac(3) // fac(k))
+    for A_count in range(k + 1):
+        count = A_count
+
+        for C_count in range(k + 1):
+            count = A_count + C_count
+            if count > k:
+                break
+
+            for G_count in range(k + 1):
+                count = A_count + C_count + G_count
+                if count > k:
+                    break
+
+		for T_count in range(k + 1):
+		    count = A_count + C_count + G_count + T_count
+		    if count == k:
+			bias[index] = (fac(k) // fac(A_count) // fac(C_count) // fac(G_count) // fac(T_count)) / float(4**k)
+			index += 1
+		    elif count > k:
+			break
+    return bias
 
 
 def createMutationGraph(k):
@@ -63,12 +104,12 @@ def createMutationGraph(k):
 	return mutationGraph
 
 
-
 def main(k):
 	mutationGraph = createMutationGraph(k)
 	print("Mutation graph for k = %d" % k)
 	for node,neighbors in enumerate(mutationGraph):
-		print("\t%d ->" % node, neighbors)
+		print("\t%d -> %s" % (node, str(neighbors)) )
+	simulateMutations(mutationGraph, k)
 
 
 if __name__ == "__main__":
