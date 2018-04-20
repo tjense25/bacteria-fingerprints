@@ -73,7 +73,7 @@ def initializeBiasDict(k):
     return bias
 
 def getSampleProb(cumProbList, num_reads, iterator):
-	local_random = random.Random(iterator) #make random thread safe & set seed for comp. reproducibility
+	local_random = random.RandomState(iterator) #make random thread safe & set seed for comp. reproducibility
 	results = []
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)

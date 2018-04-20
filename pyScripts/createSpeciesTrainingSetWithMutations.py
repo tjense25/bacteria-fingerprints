@@ -10,7 +10,7 @@ from createSpeciesTrainingSet import *
 from generateMutationGraph import createMutationGraph
 
 def getSampleProbWithMutation(cumProbList, num_reads, mutationGraph, mutation_rate, iterator):
-	local_random = random.Random(iterator) #make random thread safe and set seed
+	local_random = random.RandomState(iterator) #make random thread safe and set seed
 	results = []
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)

@@ -1,18 +1,2 @@
-Loading required package: ParamHelpers
-Warning message:
-replacing previous import 'BBmisc::isFALSE' by 'backports::isFALSE' when loading 'mlr' 
-
-Attaching package: 'dplyr'
-
-The following objects are masked from 'package:stats':
-
-    filter, lag
-
-The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union
-
-Error in makeSupervisedTask("classif", data, target, weights, blocking,  : 
-  Column names of data doesn't contain target var: label
-Calls: makeClassifTask -> makeSupervisedTask -> stopf
-Execution halted
+            acc multiclass.au1p 
+      0.4815556       0.8950880 
