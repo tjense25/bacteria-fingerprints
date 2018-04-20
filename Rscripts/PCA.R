@@ -83,7 +83,7 @@ PCs <- as.data.frame(fingerprintPC$x)
 
 ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$label)) +
 	geom_point() +
-	labs(colour = "species") + 
+	labs(colour = "Species") + 
 	ggtitle("Plasmid Space") +
 	xlab(paste0("PC1 (", sprintf(percentVE[1], fmt="%#.4g"),"%)")) +
 	ylab(paste0("PC2 (", sprintf(percentVE[2], fmt="%#.4g"),"%)")) + 
