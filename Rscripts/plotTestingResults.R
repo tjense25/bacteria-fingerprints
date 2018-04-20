@@ -28,6 +28,5 @@ mutationPlot <- ggplot(mutationTestData, aes(mutRate)) +
 		theme_bw() +
 		theme(text = element_text(size=16))
 
-require(gridExtra)
-combined <- grid.arrange(speciesPlot, mutationPlot, ncol=2)
-ggsave(combined, file="plots/speciesResultsPlot.jpeg")
+ggsave(speciesPlot, file="plots/speciesResultsPlot.jpeg")
+ggsave(mutationPlot, file="plots/mutationResultsPlot.jpeg")
