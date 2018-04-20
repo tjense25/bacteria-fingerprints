@@ -15,14 +15,14 @@ def getSampleProbWithMutation(cumProbList, num_reads, mutationGraph, mutation_ra
 	for name, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
 		for read in random.rand(num_reads):
-			index = floor(probList, read*probList[-1])
+			index = floor(probList, read*probList[-1]) #probabilistically select a random BPSkmer with replacement
 
-			#Simulate a random mutation in the kmer read probablistically
-			if random.rand() < mutation_rate:
+			#probabilistically simulate a random mutation in the kmer read
+			while random.rand() < mutation_rate:
 				index = random.choice(mutationGraph[index])
 
-			bpsCounts[index] += 1
-		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
+			bpsCounts[index] += 1 #store count of kmers
+		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies
 		results.append((name, sampleBPS))
 
 	return results
@@ -36,16 +36,18 @@ def main(bpsPath, k, num_reads, mutation_rate, num_training_samples, num_threads
 	mutationGraph = createMutationGraph(k)
 
 	writeHeader(k)	
+
+	#create threads for parallelization
 	pool = Pool(num_threads)
 	func = partial(getSampleProbWithMutation, cumulativeProbList, num_reads, mutationGraph, mutation_rate)
-	results = pool.map(func, range(num_training_samples))
+	results = pool.map(func, range(num_training_samples)) #map function to the pool for threads
 	pool.close()
 	pool.join()
 	
 	for threadResult in results:
 		for name, bps in threadResult:
 			for i,freq in enumerate(bps):
-				sys.stdout.write("%f\t" % (freq - bias[i]))
+				sys.stdout.write("%f\t" % (freq - bias[i])) #subtract species bias from results
 			sys.stdout.write("%s\n" % name)
 
 

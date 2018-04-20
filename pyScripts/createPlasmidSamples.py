@@ -19,17 +19,18 @@ def combinePlasmids(plasmids):
 
 
 
-def main(targetPlasmidsPath, controlPlasmidsPath):
+def main(targetPlasmidsPath, controlPlasmidsPath, k, num_samples):
 	targetPlasmids = loadBPS(targetPlasmidsPath)
 	controlPlasmids = loadBPS(controlPlasmidsPath)
-	bias = initializeBiasDict(10)
-	writeHeader()
-	for i in range(5):
+	bias = initializeBiasDict(k)
+	writeHeader(k)
+	p = len(targetPlasmids) #number of target plasmids
+	for i in range(p + 1):
 		targetPlasmid = None
-		if i < 4:
+		if i < p:
 			targetPlasmid = targetPlasmids[i]
-		for i in range(1000):
-			numControlPlasmids = random.randint(1,5)
+		for i in range(num_samples):
+			numControlPlasmids = random.randint(1,6)
 			plasmids = []
 
 			if targetPlasmid: plasmids.append(targetPlasmid)
@@ -43,5 +44,6 @@ def main(targetPlasmidsPath, controlPlasmidsPath):
 if __name__ == "__main__":
 	targetPlasmidsPath = sys.argv[1]
 	controlPlasmidsPath = sys.argv[2]
-	print(targetPlasmidsPath, controlPlasmidsPath)
-	main(targetPlasmidsPath, controlPlasmidsPath)
+	k = int(sys.argv[3])
+	num_samples = int(sys.argv[4])
+	main(targetPlasmidsPath, controlPlasmidsPath, k, num_samples)

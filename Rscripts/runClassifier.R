@@ -8,6 +8,10 @@ library(dplyr)
 library(readr)
 library("parallelMap")
 
+check.integer <- function(N) {
+	!grepl("[^[:digit:]]", format(N))
+}
+
 #get input data from command line and read it into a data frame
 args = commandArgs(trailingOnly=TRUE)
 
@@ -17,18 +21,27 @@ if (length(args) == 0) {
 
 #Read in pepseq data as a dataframe
 in_file <- args[1]
-
-cores <- 1
-if (length(args) == 2) {
-	cores <- as.integer(args[2])
-}
-
-parallelStartSocket(cores)
-
-
+crossValidate <- TRUE
 
 #Read data into a dataframe
 fingerprint <- read_tsv(in_file)
+
+cores <- 1
+if (length(args) >= 2) {
+
+	if(check.integer(args[2])) {
+		cores <- as.integer(args[2])
+	} else {
+		TEST_file <- args[2]
+		TEST <- read_tsv(TEST_file)
+		TestIndex <- nrow(fingerprint) + 1
+		fingerprint <- rbind(fingerprint, TEST)
+		test.set <- 1:TestIndex
+		crossValidate <- FALSE
+	}
+}
+
+
 
 #str(fingerprint)
 
@@ -39,17 +52,21 @@ task <- makeClassifTask(data = fingerprint, target = "label")
 learner <- makeLearner("classif.randomForest", predict.type = "prob")
 resampleDesc = makeResampleDesc("CV", iters = 8)
 
+if (crossValidate) {
 #set random seed for computational reproducibility
-set.seed(1)
+	parallelStartSocket(cores)
+	set.seed(1)
 
-#make predictions by combinidng the data with the algorithm with the resampling strategy
-results <- resample(learner, task, resampleDesc, show.info=FALSE)
+	#make predictions by combinidng the data with the algorithm with the resampling strategy
+	results <- resample(learner, task, resampleDesc, show.info=FALSE)
+	parallelStop()
+	save(results, file="results.Rdata")
+	preds <- results$pred
+} else {
+	model = train(learner, task, subset = test.set)
+	preds <- predict(model, task = task, subset = test.set)
+}
 
-parallelStop()
-
-save(results, file="results.Rdata")
-
-metrics <- performance(results$pred, measure=list(mlr::acc,mlr::multiclass.au1p))
+metrics <- performance(preds, measure=list(mlr::acc,mlr::multiclass.au1p))
 
 print(metrics)
-
