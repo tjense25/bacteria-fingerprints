@@ -9,7 +9,7 @@ from bisect import bisect_left as floor
 
 def initCumulativeProbList(speciesBPS):
 	cumulativeProbList = []	
-	for name,count,bps in speciesBPS:
+	for name, _,bps in speciesBPS:
 		probList = []
 		total = 0
 		for i,prob in enumerate(bps):

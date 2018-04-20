@@ -9,7 +9,7 @@ from bisect import bisect_left as floor
 from createSpeciesTrainingSet import *
 from generateMutationGraph import createMutationGraph
 
-def getSampleProbWithMutation(cumProbList, num_reads, mutationGraph, mutation_rate, iterator):
+def getSampleProbWithMutation(cumProbList, k, num_reads, mutationGraph, mutation_rate, iterator):
 	local_random = random.RandomState(iterator) #make random thread safe and set seed
 	results = []
 	for name, probList in cumProbList:
@@ -17,9 +17,10 @@ def getSampleProbWithMutation(cumProbList, num_reads, mutationGraph, mutation_ra
 		for read in local_random.rand(num_reads):
 			index = floor(probList, read*probList[-1]) #probabilistically select a local_random BPSkmer with replacement
 
-			#probabilistically simulate a local_random mutation in the kmer read
-			while local_random.rand() < mutation_rate:
-				index = local_random.choice(mutationGraph[index])
+			#probabilistically simulate mutations in the kmer read
+			num_mutations = local_random.binomial(k, mutation_rate) #randomly get number of mutations in kmer given mutation rate
+			for i in range(num_mutations):
+				index = local_random.choice(mutationGraph[index]) #randomly traverse mutation graph
 
 			bpsCounts[index] += 1 #store count of kmers
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies
@@ -39,7 +40,7 @@ def main(bpsPath, k, num_reads, mutation_rate, num_training_samples, num_threads
 
 	#create threads for parallelization
 	pool = Pool(num_threads)
-	func = partial(getSampleProbWithMutation, cumulativeProbList, num_reads, mutationGraph, mutation_rate)
+	func = partial(getSampleProbWithMutation, cumulativeProbList, k, num_reads, mutationGraph, mutation_rate)
 	results = pool.map(func, range(num_training_samples)) #map function to the pool for threads
 	pool.close()
 	pool.join()

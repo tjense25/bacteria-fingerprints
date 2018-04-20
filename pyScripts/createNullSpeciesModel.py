@@ -11,10 +11,10 @@ def getRandomProb(speciesBPS, k, num_reads, iterator):
 	results = []
 	#make random instance local to make it thread safe
 	local_random = random.RandomState(iterator) #specify seed to make it comput. reproduc.
-	for name, _,_ in speciesBPS:
+	for name,_,_ in speciesBPS:
 		bpsCounts = [0] * n
 		for i in range(num_reads):
-			index = random.randint(0, n - 1)
+			index = local_random.randint(0, n - 1)
 			bpsCounts[index] += 1
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
 		results.append((name, sampleBPS))
