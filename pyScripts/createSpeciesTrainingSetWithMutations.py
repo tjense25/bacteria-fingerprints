@@ -12,7 +12,7 @@ from generateMutationGraph import createMutationGraph
 def getSampleProbWithMutation(cumProbList, k, num_reads, mutationGraph, mutation_rate, iterator):
 	local_random = random.RandomState(iterator) #make random thread safe and set seed
 	results = []
-	for name, probList in cumProbList:
+	for name, _, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
 		for read in local_random.rand(num_reads):
 			index = floor(probList, read*probList[-1]) #probabilistically select a local_random BPSkmer with replacement

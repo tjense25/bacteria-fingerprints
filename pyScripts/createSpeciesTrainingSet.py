@@ -9,13 +9,13 @@ from bisect import bisect_left as floor
 
 def initCumulativeProbList(speciesBPS):
 	cumulativeProbList = []	
-	for name, _,bps in speciesBPS:
+	for name, iterator, bps in speciesBPS:
 		probList = []
 		total = 0
 		for i,prob in enumerate(bps):
 			total += prob
 			probList.append(total)
-		cumulativeProbList.append((name, probList))
+		cumulativeProbList.append((name, iterator, probList))
 	return cumulativeProbList
 
 def writeHeader(k):
@@ -63,19 +63,19 @@ def initializeBiasDict(k):
                 if count > k:
                     break
 
-		for T_count in range(k + 1):
-		    count = A_count + C_count + G_count + T_count
-		    if count == k:
-			bias[index] = choose4(k, A_count,C_count,G_count,T_count) / float(4**k)
-			index += 1
-		    elif count > k:
-			break
+                for T_count in range(k + 1):
+                    count = A_count + C_count + G_count + T_count
+                    if count == k:
+                        bias[index] = choose4(k, A_count,C_count,G_count,T_count) / float(4**k)
+                        index += 1
+                    elif count > k:
+                        break
     return bias
 
 def getSampleProb(cumProbList, num_reads, iterator):
 	local_random = random.RandomState(iterator) #make random thread safe & set seed for comp. reproducibility
 	results = []
-	for name, probList in cumProbList:
+	for name, _, probList in cumProbList:
 		bpsCounts = [0] * len(probList)
 		for read in local_random.rand(num_reads):
 			index = floor(probList, read*probList[-1])
