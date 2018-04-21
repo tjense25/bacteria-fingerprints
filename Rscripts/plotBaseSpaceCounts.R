@@ -20,9 +20,9 @@ names(BPS) <- c("name", "count", 1:286)
 
 bias <- NULL
 for (a in 0:10) {
-	for (c in 0:11) {
-		for (g in 0:11) {
-			for (t in 0:11) {
+	for (c in 0:10) {
+		for (g in 0:10) {
+			for (t in 0:10) {
 				if ( a + c + g + t == 10) 
 					bias <- c(bias, (factorial(10) / factorial(a) / factorial(c) / factorial(g) / factorial(t)) / 4^10)
 
@@ -40,14 +40,14 @@ BPS$BPSIndex <- as.integer(BPS$BPSIndex)
 BPS$BPSFreq <- as.numeric(BPS$BPSFreq)
 BPS$name <- as.factor(BPS$name)
 
+print(BPS)
 plot <- ggplot(bias, aes(x=BPSIndex, y=BPSFreq)) +
 	geom_line() +
 	geom_point(data=BPS, aes(colour=name)) + 
 	labs(colour="Species") + 
-	xlab("Base Percentage Space 10-mers") +
-	ylab("Probability of Sampling 10-mer") +
+	scale_x_continuous("Base Percentage Space 10-mers", limits=c(0,286)) +
+	scale_y_continuous("Probability of Sampling 10-mer") +
 	theme_bw() +
 	theme(text = element_text(size=16))
 
- 
 ggsave(plot, file = "plots/streptococcusSpectrum.jpeg")
