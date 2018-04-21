@@ -18,6 +18,21 @@ in_file <- args[1]
 BPS <- read_delim(in_file, delim=" ", col_names=FALSE)
 names(BPS) <- c("name", "count", 1:286)
 
+bias <- NULL
+for (a in 0:10) {
+	for (c in 0:11) {
+		for (g in 0:11) {
+			for (t in 0:11) {
+				if ( a + c + g + t == 10) 
+					bias <- c(bias, (factorial(10) / factorial(a) / factorial(c) / factorial(g) / factorial(t)) / 4^10)
+
+			}
+		}
+	}
+}
+
+bias <- data.frame(BPSIndex = 1:286, BPSFreq = bias)
+
 BPS <- select(BPS, -count)
 BPS <- gather(BPS, "BPSIndex", "BPSFreq", 2:ncol(BPS))
 
@@ -25,8 +40,9 @@ BPS$BPSIndex <- as.integer(BPS$BPSIndex)
 BPS$BPSFreq <- as.numeric(BPS$BPSFreq)
 BPS$name <- as.factor(BPS$name)
 
-plot <- ggplot(BPS, aes(x=BPSIndex, y=BPSFreq, colour=name)) +
-	geom_point() + 
+plot <- ggplot(BPS, aes(x=BPSIndex, y=BPSFreq)) +
+	geom_point(aes(colour=name)) + 
+	geom_line(data=bias) +
 	labs(colour="Species") + 
 	xlab("Base Percentage Space 10-mers") +
 	ylab("Probability of Sampling 10-mer") +
@@ -34,4 +50,4 @@ plot <- ggplot(BPS, aes(x=BPSIndex, y=BPSFreq, colour=name)) +
 	theme(text = element_text(size=16))
 
  
-ggsave(plot, file="plots/streptococcusSpectrum.jpeg")
+ggsave(plot, file = "plots/streptococcusSpectrum.jpeg")
