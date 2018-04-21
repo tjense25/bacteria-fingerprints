@@ -34,4 +34,4 @@ plot <- ggplot(BPS, aes(x=BPSIndex, y=BPSFreq, colour=name)) +
 	theme(text = element_text(size=16))
 
  
-ggsave(plot, file="plots/spretococcusSpectrum.jpeg")
+ggsave(plot, file="plots/streptococcusSpectrum.jpeg")
