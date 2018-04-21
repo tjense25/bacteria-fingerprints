@@ -4,6 +4,8 @@
 library(ggplot2)
 library(ggthemes)
 library(readr)
+library(tidyr)
+library(dplyr)
 
 args = commandArgs(trailingOnly=TRUE)
 
@@ -11,23 +13,25 @@ if (length(args) == 0) {
 	stop("ERROR: Must specify input file as argument", call.=FALSE)
 }
 
+
 in_file <- args[1]
 BPS <- read_delim(in_file, delim=" ", col_names=FALSE)
-print(BPS)
+names(BPS) <- c("name", "count", 1:286)
 
-name <- ""
-bpsKmers <- data.frame(ind=1:286)
-plot <- ggplot(bpsKmers, aes(x=ind))
-for (i in 1:nrow(BPS)) {
-	plot + geom_line(aes(y = BPS[i, 3:ncol(BPS)], colour = BPS[i, 1]))
-	name <- paste0(name, BPS[i, 1])
+BPS <- select(BPS, -count)
+BPS <- gather(BPS, "BPSIndex", "BPSFreq", 2:ncol(BPS))
 
-}
-plot + labs(colour = "Species") +
+BPS$BPSIndex <- as.integer(BPS$BPSIndex)
+BPS$BPSFreq <- as.numeric(BPS$BPSFreq)
+BPS$name <- as.factor(BPS$name)
+
+plot <- ggplot(BPS, aes(x=BPSIndex, y=BPSFreq, colour=name)) +
+	geom_line() + 
+	labs(colour="Species") + 
 	xlab("Base Percentage Space 10-mers") +
 	ylab("Probability of Sampling 10-mer") +
 	theme_bw() +
 	theme(text = element_text(size=16))
 
  
-ggsave(plot, file=paste0("plots/",name, "Spectrum.jpeg"))
+ggsave(plot, file="plots/spretococcusSpectrum.jpeg")
