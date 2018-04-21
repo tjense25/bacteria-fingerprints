@@ -59,7 +59,7 @@ plot1 <- ggplot(bias, aes(x=BPSIndex, y=BPSFreq)) +
 ggsave(plot = plot1, file = "plots/streptococcusSpectrum.jpeg")
 
 plot2 <- ggplot(normalizedBPS, aes(x=BPSIndex, y=BPSFreq, colour=name)) +
-	 geom_line(alpha=0.5) +
+	 geom_point() +
 	 labs(colour="Species") + 
 	 scale_x_continuous("Base Percentage Space 10-mers", limits=c(0,286)) +
 	 scale_y_continuous("Deviation from Normal") +
