@@ -12,23 +12,22 @@ if (length(args) == 0) {
 }
 
 in_file <- args[1]
-BPSpaceCounts <- as.data.frame(read_tsv(in_file))
+BPS <- read_delim(in_file, delim=" ", col_names=FALSE)
+print(BPS)
 
+name <- ""
+bpsKmers <- data.frame(ind=1:286)
+plot <- ggplot(bpsKmers, aes(x=ind))
+for (i in 1:nrow(BPS)) {
+	plot + geom_line(aes(y = BPS[i, 3:ncol(BPS)], colour = BPS[i, 1]))
+	name <- paste0(name, BPS[i, 1])
 
-mutate <- function(name, Spectrum) {
-	print(name)
-	gene <- Spectrum[which(Spectrum[[3]] == name), ]
-	gene[["Frequency"]] <- gene[[2]] / sum(gene[[2]]) 
-	return(gene)
 }
+plot + labs(colour = "Species") +
+	xlab("Base Percentage Space 10-mers") +
+	ylab("Probability of Sampling 10-mer") +
+	theme_bw() +
+	theme(text = element_text(size=16))
 
-nameList <- c("pneumonia", "pyogenes")
-
-combinedSpectrum <- lapply(nameList, function(x) { return(mutate(x, BPSpaceCounts)) } )
-
-combinedSpectrum <- rbind(combinedSpectrum[[1]], combinedSpectrum[[2]])
-
-ggplot(combinedSpectrum, aes(BasePercentageIndex, DeviationFromNormal, colour=Name)) +
-	geom_point()
-
-ggsave("speciesDeviationFromNormalSpectrum.jpg")
+ 
+ggsave(plot, file=paste0("plots/",name, "Spectrum.jpeg"))
