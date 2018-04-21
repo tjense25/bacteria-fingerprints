@@ -42,7 +42,7 @@ BPS$name <- as.factor(BPS$name)
 
 print(BPS)
 plot <- ggplot(bias, aes(x=BPSIndex, y=BPSFreq)) +
-	geom_line() +
+	geom_line(alpha=0.5) +
 	geom_point(data=BPS, aes(colour=name)) + 
 	labs(colour="Species") + 
 	scale_x_continuous("Base Percentage Space 10-mers", limits=c(0,286)) +
