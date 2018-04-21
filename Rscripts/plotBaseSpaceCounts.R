@@ -40,9 +40,9 @@ BPS$BPSIndex <- as.integer(BPS$BPSIndex)
 BPS$BPSFreq <- as.numeric(BPS$BPSFreq)
 BPS$name <- as.factor(BPS$name)
 
-plot <- ggplot(BPS, aes(x=BPSIndex, y=BPSFreq)) +
-	geom_point(aes(colour=name)) + 
-	geom_line(data=bias) +
+plot <- ggplot(bias, aes(x=BPSIndex, y=BPSFreq)) +
+	geom_line() +
+	geom_point(data=BPS, aes(colour=name)) + 
 	labs(colour="Species") + 
 	xlab("Base Percentage Space 10-mers") +
 	ylab("Probability of Sampling 10-mer") +
