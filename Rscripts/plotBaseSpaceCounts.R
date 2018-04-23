@@ -51,7 +51,14 @@ plot1 <- ggplot(bias, aes(x=BPSIndex, y=BPSFreq)) +
 	geom_line(alpha=0.5) +
 	geom_point(data=BPS, aes(colour=name)) + 
 	labs(colour="Species") + 
-	scale_x_continuous("Base Percentage Space 10-mers", limits=c(0,286)) +
+	scale_x_continuous("Base-Percentage Space 10-mers", 
+				limits=c(0,286),
+				breaks = c(1, 71, 142, 213, 286),
+				label = c(expression("A"[0]*"C"[0]*"G"[0]*"T"[10]),
+					  expression("A"[1]*"C"[0]*"G"[4]*"T"[5]),
+					  expression("A"[2]*"C"[2]*"G"[3]*"T"[3]),
+					  expression("A"[4]*"C"[1]*"G"[3]*"T"[2]),
+					  expression("A"[10]*"C"[0]*"G"[0]*"T"[0])) ) +
 	scale_y_continuous("10-mer Frequency") +
 	theme_bw() +
 	theme(text = element_text(size=16))
@@ -61,7 +68,14 @@ ggsave(plot = plot1, file = "plots/streptococcusSpectrum.jpeg")
 plot2 <- ggplot(normalizedBPS, aes(x=BPSIndex, y=BPSFreq, colour=name)) +
 	 geom_point() +
 	 labs(colour="Species") + 
-	 scale_x_continuous("Base Percentage Space 10-mers", limits=c(0,286)) +
+	 scale_x_continuous("Base-Percentage Space 10-mers", 
+				limits=c(0,286),
+				breaks = c(1, 71, 142, 213, 286),
+				label = c(expression("A"[0]*"C"[0]*"G"[0]*"T"[10]),
+					  expression("A"[1]*"C"[0]*"G"[4]*"T"[5]),
+					  expression("A"[2]*"C"[2]*"G"[3]*"T"[3]),
+					  expression("A"[4]*"C"[1]*"G"[3]*"T"[2]),
+					  expression("A"[10]*"C"[0]*"G"[0]*"T"[0])) ) +
 	 scale_y_continuous("Deviation from Normal") +
 	 theme_bw() +
 	 theme(text = element_text(size=16))
