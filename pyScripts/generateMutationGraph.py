@@ -3,6 +3,7 @@
 import sys
 import random
 from genBPSkmers import genBPSkmers
+from createSpeciesTrainingSet import initializeBiasDict
 from math import factorial as fac
 
 def hashKmerTuple(countTuple, k):
@@ -52,43 +53,28 @@ def getAdjacentKmers(kmerTuple):
 def simulateMutations(mutationGraph, k):
 	n = fac(k + 3) // fac(3) // fac(k)
 	bpsSpace = [0] * n
-	s = 10000000
+	s = 100000
 	for i in range(s):
 		index = random.randint(0, n -1)
 		for j in range(k):
 			index = random.choice(mutationGraph[index])
 		bpsSpace[index] += 1
 	for count in bpsSpace: sys.stdout.write("%.4f " % (count / float(s)))
-	print
+	print("")
+	bpsSpace = [0] * n
+	for i in range(s):
+		index = 2
+		mut_index = 2
+		visited = set()
+		for j in range(k):
+			visited.add(index)
+			while mut_index in visited: mut_index = random.choice(mutationGraph[index])
+			index = mut_index
+		bpsSpace[index] += 1
+	for count in bpsSpace: sys.stdout.write("%.4f " % (count / float(s)))
+	print("")
 	for freq in initializeBiasDict(k): sys.stdout.write("%.4f " % freq)
 	
-
-
-def initializeBiasDict(k):
-    index = 0
-    bias = [0] * (fac(k + 3) // fac(3) // fac(k))
-    for A_count in range(k + 1):
-        count = A_count
-
-        for C_count in range(k + 1):
-            count = A_count + C_count
-            if count > k:
-                break
-
-            for G_count in range(k + 1):
-                count = A_count + C_count + G_count
-                if count > k:
-                    break
-
-		for T_count in range(k + 1):
-		    count = A_count + C_count + G_count + T_count
-		    if count == k:
-			bias[index] = (fac(k) // fac(A_count) // fac(C_count) // fac(G_count) // fac(T_count)) / float(4**k)
-			index += 1
-		    elif count > k:
-			break
-    return bias
-
 
 def createMutationGraph(k):
 	BPSkmers = genBPSkmers(k)

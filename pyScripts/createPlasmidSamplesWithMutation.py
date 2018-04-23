@@ -2,9 +2,9 @@
 
 import sys
 from numpy import random
+from multiprocessing import Pool
 from functools import partial
-from bisect import bisect_left as floor
-from createSpeciesTrainingSet import initializeBiasDict, writeHeader, loadBPS
+from createSpeciesTrainingSet import initializeBiasDict, writeHeader, loadBPS, correctBPSList
 from generateMutationGraph import createMutationGraph
 
 	
@@ -21,24 +21,25 @@ def combinePlasmids(plasmids):
 	return combinedBPS
 
 
-def getSampleProbWithMutation(num_reads, mutationGraph, mutation_rate, plasmidBpsTuple):
-	name, iterator, bpsProbList = plasmidBpsTuple
+def getReadsFromPlasmids(num_reads, mutationGraph, mutation_rate, plasmidBpsTuple):
+	name, iterator, bps = plasmidBpsTuple
 	local_random = random.RandomState(iterator) #make random thread safe and set seed
-	bpsCounts = [0] * len(probList)
-	for read in local_random.rand(num_reads):
-		index = floor(bpsProbList, read*bpsProbList[-1]) #probabilistically select a local_random BPSkmer with replacement
+	bpsCounts = [0] * len(bps)
+	for read, num_mutations in zip(local_random.choice(len(bps), num_reads, True, bps), local_random.binomial(k, mutation_rate, num_reads)):
+		mut_read = read
+		visited = set()
+		for i in range(num_mutations):
+			visited.add(read)
+			while mut_read in visited: mut_read = local_random.choice(mutationGraph[read]) #randomly traverse mutation graph
+			read = mut_read
 
-		#probabilistically simulate a local_random mutation in the kmer read
-		while local_random.rand() < mutation_rate:
-			index = local_random.choice(mutationGraph[index])
-
-		bpsCounts[index] += 1 #store count of kmers
+		bpsCounts[read] += 1 #store count of kmers
 
 	sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies
 
 	return (name, sampleBPS)
 
-def main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, num_samples):
+def main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, num_samples, num_threads):
 	targetPlasmids = loadBPS(targetPlasmidsPath)
 	controlPlasmids = loadBPS(controlPlasmidsPath)
 	bias = initializeBiasDict(k)
@@ -55,17 +56,18 @@ def main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, n
 
 			if targetPlasmid: plasmids.append(targetPlasmid)
 
-			plasmids.extend(random.sample(controlPlasmids, numControlPlasmids))
+			plasmids.extend([ controlPlasmids[i] for i in random.choice(range(len(controlPlasmids)), numControlPlasmids) ])
 			combinedBPS = combinePlasmids(plasmids)
-
-			name = tragetPlasmid[0] if targetPlasmid else "none"
+				
+			name = targetPlasmid[0] if targetPlasmid else "none"
 			samplePlasmids.append((name, i*num_samples + j, combinedBPS))
 	
-	cumulativeBPSList = initCumulativeProbList(samplePlasmids)
+	correctedBPS = correctBPSList(samplePlasmids)
+	mutationGraph = createMutationGraph(k)
 
 	pool = Pool(num_threads) #generate multiple threads
 	func = partial(getReadsFromPlasmids, num_reads, mutationGraph, mutation_rate) #create partial function passing in arguments
-	results = pool.map(func, cumulativeBPSList) #map function to the different threads
+	results = pool.map(func, correctedBPS) #map function to the different threads
 	pool.close()
 	pool.join()
 
@@ -84,4 +86,5 @@ if __name__ == "__main__":
 	num_reads = int(sys.argv[4])
 	mutation_rate = float(sys.argv[5])
 	num_samples = int(sys.argv[6])
-	main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, num_samples)
+	num_threads = int(sys.argv[7])
+	main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, num_samples, num_threads)
