@@ -2,3 +2,5 @@ jellyfish-2.2.7*
 controlPlasmids/*.fna
 pyScripts/*.pyc
 trainingData/
+pyScripts/__pycache__/
+slurm*
