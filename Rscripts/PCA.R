@@ -68,7 +68,7 @@ fingerprints <- fingerprints[complete.cases(fingerprints), ]
 #ggsave("plasmidPCA.jpeg", width = 10, height = 10, units = "in")
 
 
-#remove the toxicity column of matrix and store result as matrix 
+#remove the label column of matrix and store result as matrix 
 characterMatrix <- as.matrix(select(fingerprints, -label))
 
 #get principal components from the matrix and store it in an object
@@ -81,10 +81,9 @@ percentVE <- 100 * fingerprintPC$sdev^2 / sum(fingerprintPC$sdev^2)
 #extract actual principal components and plot the first two PCs
 PCs <- as.data.frame(fingerprintPC$x)
 
-ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$label)) +
+plot = ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$label)) +
 	geom_point() +
-	labs(colour = "Species") + 
-	ggtitle("Plasmid Space") +
+	labs(colour = "Resistance Plasmid") + 
 	xlab(paste0("PC1 (", sprintf(percentVE[1], fmt="%#.4g"),"%)")) +
 	ylab(paste0("PC2 (", sprintf(percentVE[2], fmt="%#.4g"),"%)")) + 
 	theme_bw() + 
@@ -95,7 +94,7 @@ ggplot(PCs, aes(x=PC1, y=PC2, colour=fingerprints$label)) +
 	      axis.line = element_line(colour = "black"))
 
 
-ggsave("PCA.jpeg", width = 10, height = 10, units = "in")
+ggsave(plot = plot, "plots/plasmidPCA.jpeg", width = 10, height = 10, units = "in")
 
 
 

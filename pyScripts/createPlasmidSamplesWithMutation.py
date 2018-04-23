@@ -4,8 +4,7 @@ import sys
 from numpy import random
 from multiprocessing import Pool
 from functools import partial
-from bisect import bisect_left as floor
-from createSpeciesTrainingSet import initializeBiasDict, writeHeader, loadBPS, initCumulativeProbList
+from createSpeciesTrainingSet import initializeBiasDict, writeHeader, loadBPS, correctBPSList
 from generateMutationGraph import createMutationGraph
 
 	
@@ -23,18 +22,18 @@ def combinePlasmids(plasmids):
 
 
 def getReadsFromPlasmids(num_reads, mutationGraph, mutation_rate, plasmidBpsTuple):
-	name, iterator, bpsProbList = plasmidBpsTuple
+	name, iterator, bps = plasmidBpsTuple
 	local_random = random.RandomState(iterator) #make random thread safe and set seed
-	bpsCounts = [0] * len(bpsProbList)
-	for read in local_random.rand(num_reads):
-		index = floor(bpsProbList, read*bpsProbList[-1]) #probabilistically select a local_random BPSkmer with replacement
-
-		#probabilistically simulate mutations in the kmer read
-		num_mutations = local_random.binomial(k, mutation_rate) #randomly get number of mutations in kmer given mutation rate
+	bpsCounts = [0] * len(bps)
+	for read, num_mutations in zip(local_random.choice(len(bps), num_reads, True, bps), local_random.binomial(k, mutation_rate, num_reads)):
+		mut_read = read
+		visited = set()
 		for i in range(num_mutations):
-			index = local_random.choice(mutationGraph[index]) #randomly traverse mutation graph
+			visited.add(read)
+			while mut_read in visited: mut_read = local_random.choice(mutationGraph[read]) #randomly traverse mutation graph
+			read = mut_read
 
-		bpsCounts[index] += 1 #store count of kmers
+		bpsCounts[read] += 1 #store count of kmers
 
 	sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies
 
@@ -63,12 +62,12 @@ def main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, n
 			name = targetPlasmid[0] if targetPlasmid else "none"
 			samplePlasmids.append((name, i*num_samples + j, combinedBPS))
 	
-	cumulativeBPSList = initCumulativeProbList(samplePlasmids)
+	correctedBPS = correctBPSList(samplePlasmids)
 	mutationGraph = createMutationGraph(k)
 
 	pool = Pool(num_threads) #generate multiple threads
 	func = partial(getReadsFromPlasmids, num_reads, mutationGraph, mutation_rate) #create partial function passing in arguments
-	results = pool.map(func, cumulativeBPSList) #map function to the different threads
+	results = pool.map(func, correctedBPS) #map function to the different threads
 	pool.close()
 	pool.join()
 

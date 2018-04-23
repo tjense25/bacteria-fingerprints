@@ -4,25 +4,25 @@ import collections
 from numpy import random
 from functools import partial
 from multiprocessing import Pool
-from math import factorial as fac
-from bisect import bisect_left as floor
 from createSpeciesTrainingSet import *
 from generateMutationGraph import createMutationGraph
 
-def getSampleProbWithMutation(cumProbList, k, num_reads, mutationGraph, mutation_rate, iterator):
+def getSampleProbWithMutation(speciesBPS, k, num_reads, mutationGraph, mutation_rate, iterator):
 	local_random = random.RandomState(iterator) #make random thread safe and set seed
 	results = []
-	for name, _, probList in cumProbList:
-		bpsCounts = [0] * len(probList)
-		for read in local_random.rand(num_reads):
-			index = floor(probList, read*probList[-1]) #probabilistically select a local_random BPSkmer with replacement
-
+	for name, _, bps in speciesBPS:
+		bpsCounts = [0] * len(bps)
+		for read, num_mutations in zip(local_random.choice(len(bps), num_reads, True, bps), local_random.binomial(k, mutation_rate, num_reads)):
+			visited = set()
+			mutated_read = read
 			#probabilistically simulate mutations in the kmer read
-			num_mutations = local_random.binomial(k, mutation_rate) #randomly get number of mutations in kmer given mutation rate
 			for i in range(num_mutations):
-				index = local_random.choice(mutationGraph[index]) #randomly traverse mutation graph
+				visited.add(read)
+				while mutated_read in visited: mutated_read = local_random.choice(mutationGraph[read]) #randomly traverse mutation graph
+				read = mutated_read
 
-			bpsCounts[index] += 1 #store count of kmers
+			bpsCounts[read] += 1 #store count of bpsKmers
+			
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies
 		results.append((name, sampleBPS))
 
@@ -32,7 +32,7 @@ def getSampleProbWithMutation(cumProbList, k, num_reads, mutationGraph, mutation
 def main(bpsPath, k, num_reads, mutation_rate, num_training_samples, num_threads):
 
 	speciesBPS = loadBPS(bpsPath)
-	cumulativeProbList = initCumulativeProbList(speciesBPS)	
+	correctedBPS = correctBPSList(speciesBPS) #make sure species BPS adds up to 1	
 	bias = initializeBiasDict(k)
 	mutationGraph = createMutationGraph(k)
 
@@ -40,7 +40,7 @@ def main(bpsPath, k, num_reads, mutation_rate, num_training_samples, num_threads
 
 	#create threads for parallelization
 	pool = Pool(num_threads)
-	func = partial(getSampleProbWithMutation, cumulativeProbList, k, num_reads, mutationGraph, mutation_rate)
+	func = partial(getSampleProbWithMutation, correctedBPS, k, num_reads, mutationGraph, mutation_rate)
 	results = pool.map(func, range(num_training_samples)) #map function to the pool for threads
 	pool.close()
 	pool.join()

@@ -1,22 +1,19 @@
 #!/usr/bin/python
 import sys
 import collections
+import numpy as np
 from numpy import random
 from functools import partial
 from multiprocessing import Pool
 from math import factorial as fac
-from bisect import bisect_left as floor
 
-def initCumulativeProbList(speciesBPS):
-	cumulativeProbList = []	
+def correctBPSList(speciesBPS):
+	correctedBPSList = []	
 	for name, iterator, bps in speciesBPS:
-		probList = []
-		total = 0
-		for i,prob in enumerate(bps):
-			total += prob
-			probList.append(total)
-		cumulativeProbList.append((name, iterator, probList))
-	return cumulativeProbList
+		total = sum(bps)
+		correctedBPS = [ (total**-1) * prob for prob in bps ]	
+		correctedBPSList.append((name, iterator, correctedBPS))
+	return correctedBPSList
 
 def writeHeader(k):
 	n = choose2(k + 3, 3)
@@ -72,14 +69,11 @@ def initializeBiasDict(k):
                         break
     return bias
 
-def getSampleProb(cumProbList, num_reads, iterator):
+def getSampleProb(correctedBPS, num_reads, iterator):
 	local_random = random.RandomState(iterator) #make random thread safe & set seed for comp. reproducibility
 	results = []
-	for name, _, probList in cumProbList:
-		bpsCounts = [0] * len(probList)
-		for read in local_random.rand(num_reads):
-			index = floor(probList, read*probList[-1])
-			bpsCounts[index] += 1
+	for name, _, bps in correctedBPS:
+		bpsCounts = np.bincount(local_random.choice(len(bps), num_reads, True, bps))
 		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
 		results.append((name, sampleBPS))
 
@@ -89,12 +83,12 @@ def getSampleProb(cumProbList, num_reads, iterator):
 def main(bpsPath, k, num_reads, num_training_samples, num_threads):
 
 	speciesBPS = loadBPS(bpsPath)
-	cumulativeProbList = initCumulativeProbList(speciesBPS)	
+	correctedBPS = correctBPSList(speciesBPS)	
 	bias = initializeBiasDict(k)
 
 	writeHeader(k)	
 	pool = Pool(num_threads)
-	func = partial(getSampleProb, cumulativeProbList, num_reads)
+	func = partial(getSampleProb, correctedBPS, num_reads)
 	results = pool.map(func, range(num_training_samples))
 	pool.close()
 	pool.join()
