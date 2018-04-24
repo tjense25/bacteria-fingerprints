@@ -86,16 +86,20 @@ def createMutationGraph(k):
 
 		for neighbor in neighborTuples:
 			mutationGraph[i].append(BPSkmersDict[ hashKmerTuple(neighbor, k)])
-
 	return mutationGraph
 
 
 def main(k):
 	mutationGraph = createMutationGraph(k)
 	print("Mutation graph for k = %d" % k)
-	for node,neighbors in enumerate(mutationGraph):
-		print("\t%d -> %s" % (node, str(neighbors)) )
-	simulateMutations(mutationGraph, k)
+	BPSkmers = genBPSkmers(k)
+
+	for i in range(len(BPSkmers)):
+		for j in range(i, len(BPSkmers)):
+			if j not in mutationGraph[i]: continue
+			print("A%dC%dG%dT%d ->" % BPSkmers[i] + " A%dC%dG%dT%d" % BPSkmers[j])
+
+	#simulateMutations(mutationGraph, k)
 
 
 if __name__ == "__main__":

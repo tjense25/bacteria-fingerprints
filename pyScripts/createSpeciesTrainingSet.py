@@ -21,6 +21,16 @@ def writeHeader(k):
 		sys.stdout.write("%i\t" % i)
 	sys.stdout.write("label\n")
 	
+def partitionSamplesBetweenThreads(num_training_samples, num_threads):
+	if num_training_samples % num_threads != 0:
+		#add more training samples so it can be evenly divided among threads
+		num_training_samples = (num_training_samples // num_threads + 1) * num_threads 
+	partitionedIndices = []
+	partition_size = num_training_samples // num_threads
+	for i in range(num_threads):
+		partitionedIndices.append(range(i*partition_size,(i+1)*partition_size))
+	return partitionedIndices
+	
 def choose4(k, w, x, y, z):
 	numer = fac(k)
 	denom = fac(w)*fac(x)*fac(y)*fac(z)
@@ -69,13 +79,14 @@ def initializeBiasDict(k):
                         break
     return bias
 
-def getSampleProb(correctedBPS, num_reads, iterator):
-	local_random = random.RandomState(iterator) #make random thread safe & set seed for comp. reproducibility
+def getSampleProb(correctedBPS, num_reads, splice):
+	local_random = random.RandomState(splice[0]) #make random thread safe & set seed for comp. reproducibility
 	results = []
-	for name, _, bps in correctedBPS:
-		bpsCounts = np.bincount(local_random.choice(len(bps), num_reads, True, bps))
-		sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
-		results.append((name, sampleBPS))
+	for __ in splice:
+		for name, _, bps in correctedBPS:
+			bpsCounts = np.bincount(local_random.choice(len(bps), num_reads, True, bps))
+			sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ]
+			results.append((name, sampleBPS))
 
 	return results
 
@@ -89,7 +100,8 @@ def main(bpsPath, k, num_reads, num_training_samples, num_threads):
 	writeHeader(k)	
 	pool = Pool(num_threads)
 	func = partial(getSampleProb, correctedBPS, num_reads)
-	results = pool.map(func, range(num_training_samples))
+	threadPartition = partitionSamplesBetweenThreads(num_training_samples, num_threads)
+	results = pool.map(func, threadPartition)
 	pool.close()
 	pool.join()
 	
