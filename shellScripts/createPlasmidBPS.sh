@@ -1,7 +1,13 @@
 #!/bin/bash
+set -e
 
-jellyfish=/fslhome/tjense25/fsl_groups/fslg_genome/bacteria-fingerprints/jellyfish-2.2.7/jf/bin/jellyfish
-convertToBPS=/fslhome/tjense25/fsl_groups/fslg_genome/bacteria-fingerprints/pyScripts/convertToBasePercentageSpace.py
+k=10
+if [ $# -ge 1 ] ; then
+	k=$1
+fi
+
+jellyfish=./jellyfish-2.2.7/jf/bin/jellyfish
+convertToBPS=./pyScripts/convertToBasePercentageSpace.py
 
 files=$(ls ./plasmids/*.fasta)
 
@@ -9,8 +15,8 @@ for file in $files
 do
 	NAME=$(echo $file | cut -d '/' -f 3)
 	NAME=$(echo $NAME | cut -d '.' -f 1)
-	$jellyfish count -m 10 -s 10M -t 4 $file
-	$jellyfish dump mer_counts.jf | $convertToBPS 10 $NAME
+	$jellyfish count -m $k -s 10M -t 4 $file
+	$jellyfish dump mer_counts.jf | $convertToBPS $k $NAME
 done
 
 rm mer_counts.jf

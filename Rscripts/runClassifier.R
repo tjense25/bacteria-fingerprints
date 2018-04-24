@@ -66,7 +66,7 @@ if (crossValidate) {
 } else {
 	model = train(learner, task, subset = train.set)
 	preds <- predict(model, task = task, subset = test.set)
-	save(results, file="results.Rdata")
+	save(preds, file="results.Rdata")
 }
 
 metrics <- performance(preds, measure=list(mlr::acc,mlr::multiclass.au1p))
