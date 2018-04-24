@@ -5,24 +5,19 @@ from numpy import random
 from functools import partial
 from multiprocessing import Pool
 from createSpeciesTrainingSet import *
-from generateMutationGraph import createMutationGraph
+from generateMutationGraph import MutationGraph
 
-def getSampleProbWithMutation(speciesBPS, k, num_reads, mutationGraph, mutation_rate, splice):
+def getSampleProbWithMutation(speciesBPS, k, num_reads, mutation_rate, splice):
 	local_random = random.RandomState(splice[0]) #make random thread-safe and set seed
+	mutationGraph = MutationGraph(k, local_random)
 	results = []
 	for __ in splice:
 		for name, count, bps in speciesBPS:
 			sys.stderr.write("%d\n" % count)
 			bpsCounts = [0] * len(bps)
 			for read, num_mutations in zip(local_random.choice(len(bps), num_reads, True, bps), local_random.binomial(k, mutation_rate, num_reads)):
-				visited = set()
-				mutated_read = read
-				#probabilistically simulate mutations in the kmer read
-				for i in range(num_mutations):
-					visited.add(read)
-					while mutated_read in visited: mutated_read = local_random.choice(mutationGraph[read]) #randomly traverse mutation graph
-					read = mutated_read
-
+				if num_mutations != 0:
+					read = mutationGraph.simulateMutations(read, num_mutations) #probabilistically simulate a mutation by taking random walk through mutation graph
 				bpsCounts[read] += 1 #store count of bpsKmers
 				
 			sampleBPS = [ bpsCounts[i] / float(num_reads) for i in range(len(bpsCounts)) ] #convert counts to frequencies
@@ -35,13 +30,12 @@ def main(bpsPath, k, num_reads, mutation_rate, num_training_samples, num_threads
 	speciesBPS = loadBPS(bpsPath)
 	correctedBPS = correctBPSList(speciesBPS) #make sure species BPS adds up to 1	
 	bias = initializeBiasDict(k)
-	mutationGraph = createMutationGraph(k)
 
 	writeHeader(k)	
 
 	#create threads for parallelization
 	pool = Pool(num_threads)
-	func = partial(getSampleProbWithMutation, correctedBPS, k, num_reads, mutationGraph, mutation_rate)
+	func = partial(getSampleProbWithMutation, correctedBPS, k, num_reads, mutation_rate)
 	threadPartition = partitionSamplesBetweenThreads(num_training_samples, num_threads)
 	results = pool.map(func, threadPartition) #map function to the pool for threads
 	pool.close()

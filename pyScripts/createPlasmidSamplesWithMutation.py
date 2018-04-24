@@ -5,7 +5,7 @@ from numpy import random
 from multiprocessing import Pool
 from functools import partial
 from createSpeciesTrainingSet import *
-from generateMutationGraph import createMutationGraph
+from generateMutationGraph import MutationGraph
 
 	
 
@@ -20,20 +20,17 @@ def combinePlasmids(plasmids):
 		combinedBPS.append(prob)
 	return combinedBPS
 
-def getReadsFromPlasmids(num_reads, mutationGraph, mutation_rate, threadTuples):
+def getReadsFromPlasmids(num_reads, k, mutation_rate, threadTuples):
 	local_random = random.RandomState(threadTuples[0][1]) #make random thread safe and set seed
+	mutationGraph = MutationGraph(k, local_random)
 	results = []
 	for plasmidBpsTuple in threadTuples:
 		name, iterator, bps = plasmidBpsTuple
 		sys.stderr.write("%d\n" % iterator)
 		bpsCounts = [0] * len(bps)
 		for read, num_mutations in zip(local_random.choice(len(bps), num_reads, True, bps), local_random.binomial(k, mutation_rate, num_reads)):
-			mut_read = read
-			visited = set()
-			for i in range(num_mutations):
-				visited.add(read)
-				while mut_read in visited: mut_read = local_random.choice(mutationGraph[read]) #randomly traverse mutation graph
-				read = mut_read
+			if num_mutations != 0:
+				read = mutationGraph.simulateMutations(read, num_mutations)
 
 			bpsCounts[read] += 1 #store count of kmers
 
@@ -69,7 +66,6 @@ def main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, n
 			samplePlasmids.append((name, i*num_samples + j, combinedBPS))
 	
 	correctedBPS = correctBPSList(samplePlasmids)
-	mutationGraph = createMutationGraph(k)
 
 	threadTuples = []
 	partition_size = num_samples // num_threads * (p + 1)
@@ -77,7 +73,7 @@ def main(targetPlasmidsPath, controlPlasmidsPath, k, num_reads, mutation_rate, n
 		threadTuples.append(correctedBPS[i*partition_size:(i + 1)*partition_size])
 
 	pool = Pool(num_threads) #generate multiple threads
-	func = partial(getReadsFromPlasmids, num_reads, mutationGraph, mutation_rate) #create partial function passing in arguments
+	func = partial(getReadsFromPlasmids, num_reads, k, mutation_rate) #create partial function passing in arguments
 	results = pool.map(func, threadTuples) #map function to the different threads
 	pool.close()
 	pool.join()
