@@ -75,11 +75,13 @@ class MutationGraph:
 		str = []
 		BPSkmers = genBPSkmers(self.k)
 		for i in range(self.n):
-			for j in range(i, self.n):
+			str.append("A%dC%dG%dT%d -> [" % BPSkmers[i])
+			for j in range(self.n):
 				if j not in self.adjList[i]: continue
-				str.append("A%dC%dG%dT%d ->" % BPSkmers[i] + " A%dC%dG%dT%d" % BPSkmers[j])
+				str.append("A%dC%dG%dT%d, " % BPSkmers[j])
+			str[-1] = str[-1].replace(', ',']\n')
 
-		return '\n'.join(str)
+		return ''.join(str)
 
 
 	def simulateMutations(self, BPSKmer, numMutations):
@@ -95,14 +97,26 @@ class MutationGraph:
 			BPSKmer = mutatedBPSKmer
 		return BPSKmer
 
+	def toDOT(self):
+		str = []
+		str.append('digraph MutationGraph {')
+		str.append('edge [dir=none]')
+		str.append('node [style=filled, color=lightblue]')
+		BPSkmers = genBPSkmers(self.k)
+		for i in range(self.n):
+			for j in range(i, self.n):
+				if j not in self.adjList[i]: continue
+				str.append("A%dC%dG%dT%d ->" % BPSkmers[i] + " A%dC%dG%dT%d" % BPSkmers[j])
+		str.append('}')
+
+		return '\n'.join(str)
+
+
 	
 def main(k):
 	mutationG = MutationGraph(k)
-	print("Mutation graph for k = %d" % k)
-	print(mutationG)
-	for i in range(1000):
-		assert(i % mutationG.n != mutationG.simulateMutations(i % mutationG.n, 2))
-	print('success!!')
+	print("//Mutation graph for k = %d" % k)
+	print(mutationG.toDOT())
 
 
 if __name__ == "__main__":

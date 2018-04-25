@@ -8,9 +8,6 @@ if [ $# -ge 1 ] ; then
 	k=$1
 fi
 
-echo k
-
-
 REFERENCE_GENOMES=$(ls bacteria/*.fna)
 for REF in $REFERENCE_GENOMES
 do
