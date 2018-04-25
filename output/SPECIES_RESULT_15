@@ -21,3 +21,6 @@ See spec(...) for full column specifications.
 Starting parallelization in mode=socket with cpus=8.
 Exporting objects to slaves for mode socket: .mlr.slave.options
 Mapping in parallel: mode = socket; cpus = 8; elements = 10.
+Stopped parallelization. All cleaned up.
+            acc multiclass.au1p 
+              1               1 
