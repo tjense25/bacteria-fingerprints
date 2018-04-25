@@ -63,12 +63,15 @@ if (crossValidate) {
 	parallelStop()
 	save(results, file="results.Rdata")
 	preds <- results$pred
+	metrics <- performance(preds, measure=list(mlr::acc,mlr::multiclass.au1p))
+
+	print(metrics)
 } else {
 	model = train(learner, task, subset = train.set)
 	preds <- predict(model, task = task, subset = test.set)
 	save(preds, file="results.Rdata")
+	metrics <- performance(preds, measure=list(mlr::acc,mlr::multiclass.au1p))
+
+	print(metrics)
 }
 
-metrics <- performance(preds, measure=list(mlr::acc,mlr::multiclass.au1p))
-
-print(metrics)
